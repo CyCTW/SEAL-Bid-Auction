@@ -30,7 +30,7 @@ def verifyCommitmentNIZKProof(proof, g, p, L, A, B):
     proof: proof
     generator: g
     module: q
-    g**(a*b): L
+    g**(a*b) or g**(a*b+1): L
     g**a: A
     g**b: B
     """
