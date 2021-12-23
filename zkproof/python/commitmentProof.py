@@ -21,13 +21,13 @@ def verifyCommitmentNIZKProof(proof, g, p, L, A, B):
     ----
     Input:
         proof: proof
-        generator: g
-        module: p
-        g**(a*b) or g**(a*b+1): L
-        g**a: A
-        g**b: B
+        g: generator
+        p: large prime modular
+        L:
+        A:
+        B:
     Output:
-        verified result: res
+        res: verified result
     """
     def verify_1():
         left = pow(g, proof.response_1, p)
@@ -56,19 +56,22 @@ def verifyCommitmentNIZKProof(proof, g, p, L, A, B):
     return verify_1() and verify_2() and verify_3() and verify_4()
 
 
-def generateCommitmentNIZKProof(statement, g, q, p, a, b, id):# => {
+def generateCommitmentNIZKProof(statement, g, q, p, a, A, B, L, id):# => {
     """
     Generate proof of well-formedness of commitment.
     ---
     Input: 
         statement: Which statement to proof 
-        0: g**(a*b)
-        1: g**(a*b+1)
+            0: g**(a*b)
+            1: g**(a*b+1)
         g: generator
+        q: order of generator
+        p: large prime modular
         a: alpha
-        b: beta
-        order: q
-        q: module
+        A: 
+        B:
+        L: 
+        id: user_id
     Output:
         Proof(challange1, challange2, Response1, Response2)
     """ 
@@ -81,10 +84,10 @@ def generateCommitmentNIZKProof(statement, g, q, p, a, b, id):# => {
         ch2 = randrange(1, q)
 
         proof.commitment_11 = pow(g, r1, p)
-        proof.commitment_12 = pow(g, b * r1, p)
-        proof.commitment_21 = pow(g, r2, p) * pow(g, a * ch2, p)
-        proof.commitment_22 = pow(g, b * r2, p) * pow(g, (a * b - 1) * ch2, p)
-        ch = randomOracle(g, pow(g, a, p), pow(g, b, p), r1, r2, id) # H(g || y1 || y2 || r1 || r2 || id)
+        proof.commitment_12 = pow(B, r1, p)
+        proof.commitment_21 = pow(g, r2, p) * pow(A,  ch2, p)
+        proof.commitment_22 = pow(B, r2, p) * pow(L / g,  ch2, p)
+        ch = randomOracle(g, A, B, r1, r2, id) # H(g || y1 || y2 || r1 || r2 || id)
         ch1 = ch - ch2
 
         proof.challange_1 = ch1
@@ -96,17 +99,17 @@ def generateCommitmentNIZKProof(statement, g, q, p, a, b, id):# => {
         r2 = randrange(1, q)
         ch1 = randrange(1, q)
 
-        proof.commitment_21 = pow(g, r1, p)
-        proof.commitment_22 = pow(g, b * r1, p)
-        proof.commitment_11 = pow(g, r2, p) * pow(g, a * ch1, p)
-        proof.commitment_12 = pow(g, b * r2, p) * pow(g, (a * b + 1) * ch1, p)
-        ch = randomOracle(g, pow(g, a, p), pow(g, b, p), r1, r2, id) # H(g || y1 || y2 || r1 || r2 || id)
+        proof.commitment_21 = pow(g, r2, p)
+        proof.commitment_22 = pow(B, r2, p)
+        proof.commitment_11 = pow(g, r1, p) * pow(A, ch1, p)
+        proof.commitment_12 = pow(B, r1, p) * pow(L, ch1, p)
+        ch = randomOracle(g, A, B, r1, r2, id) # H(g || y1 || y2 || r1 || r2 || id)
         ch2 = ch - ch1
 
         proof.challange_1 = ch1
         proof.challange_2 = ch2
-        proof.response_2 = r1 - a * ch2
-        proof.response_1 = r2
+        proof.response_1 = r1
+        proof.response_2 = r2 - a * ch2
     else:
         ...
     return proof
@@ -136,8 +139,8 @@ q, r, p, h, g = init_schnorr_group()
 alpha = randrange(1, q) # [1, q)
 beta = randrange(1, q) # [1, q)
 
-A = pow(g, alpha, q)
-B = pow(g, beta, q)
+A = pow(g, alpha, p)
+B = pow(g, beta, p)
 
 for statement in [0, 1]:
     print(f"\nProve Statement {statement}...")
@@ -146,7 +149,7 @@ for statement in [0, 1]:
     id = randrange(100) # User id
 
     # Generate Commitment Proof
-    proof = generateCommitmentNIZKProof(statement, g, q, p, alpha, beta, id)
+    proof = generateCommitmentNIZKProof(statement, g, q, p, alpha, A, B, L, id)
     res = verifyCommitmentNIZKProof(proof, g, p, L, A, B)
 
     if res: print("Sucess")
