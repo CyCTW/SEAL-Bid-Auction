@@ -1,48 +1,84 @@
 // import {randomOracle, randrange, pow, is_prime, random_prime} from 'util.js'
 
 const pow = (base, exp, m) => {
-  if (exp == 0n) return 1n
-  const half = pow(base, (exp/2), m)
-  if (exp % 2n == 0n) {
-    return (half * half) % m
+  // deal with negative exponent
+  if (exp < 0) {
+    return pow(egcd(base, m), -exp, m);
   }
-  else {
-    return ((half * half % m) * base) % m
+  if (exp === 0n) {
+    return 1n;
   }
-}
+  let half = pow(base, exp / 2n, m);
+  if (exp % 2n === 0n) {
+    return (half * half) % m;
+  } else {
+    return (((half * half) % m) * base) % m;
+  }
+};
 const randrange = (min, max) => {
   // TODO: Use a secure random number generator
-  let diff = max - min
+  let diff = max - min;
 
   var array = new Uint32Array(20);
   self.crypto.getRandomValues(array);
 
-  let val = BigInt(0)
+  let val = BigInt(0);
   for (var i = 0; i < array.length; i++) {
-    val = (val << 8) + BigInt(array[i]);
+    val = (val << 8n) + BigInt(array[i]);
   }
-  return val
-  
+  return (val % diff) + min;
+};
+function egcd(a, b) {
+  let s = 0n,
+    old_s = 1n;
+  let t = 1n,
+    old_t = 0n;
+  let r = b,
+    old_r = a;
+  if (b === 0n) {
+    return 1;
+  }
+  while (r !== 0n) {
+    let q = BigInt(old_r / r);
+    [r, old_r] = [old_r - q * r, r];
+    [s, old_s] = [old_s - q * s, s];
+    [t, old_t] = [old_t - q * t, t];
+  }
+  // console.log("Bezout coef: ", old_s.toString(), old_t.toString());
+  // console.log("GCD: ", old_r.toString());
+  // console.log("Quot by GCD: ", s, t);
+  return old_s;
 }
+
 const randomOracle = () => {
-  // TODO
-  return BigInt(328748310893478930174930189403198439343434)
+  // TODO: SHA256 random oracle
+  return 41276046190021301260089578926574153588091408971038812136256491021118072847065n;
+};
+
+class commitmentNIZKProof {
+  constructor(
+    cmt11 = 0n,
+    cmt12 = 0n,
+    cmt21 = 0n,
+    cmt22 = 0n,
+    ch1 = 0n,
+    ch2 = 0n,
+    r1 = 0n,
+    r2 = 0n
+  ) {
+    this.commitment_11 = cmt11;
+    this.commitment_12 = cmt12;
+    this.commitment_21 = cmt21;
+    this.commitment_22 = cmt22;
+    this.challange_1 = ch1;
+    this.challange_2 = ch2;
+    this.response_1 = r1;
+    this.response_2 = r2;
+  }
 }
 
-const commitmentNIZKProof = (cmt11 = 0n, cmt12 = 0n, cmt21 = 0n, cmt22 = 0n, ch1 = 0n, ch2 = 0n, r1 = 0n, r2 = 0n) => {
-    this.commitment_11 = cmt11
-    this.commitment_12 = cmt12
-    this.commitment_21 = cmt21
-    this.commitment_22 = cmt22
-    this.challange_1 = ch1
-    this.challange_2 = ch2
-    this.response_1 = r1
-    this.response_2 = r2
-  
-}
-
-const verifyCommitmentNIZKProof = (proof, g, q, L, A, B) => {
-    /* 
+const verifyCommitmentNIZKProof = (proof, g, p, L, A, B) => {
+  /* 
     Prove
     Input:
         proof: proof
@@ -52,31 +88,41 @@ const verifyCommitmentNIZKProof = (proof, g, q, L, A, B) => {
         :A
         :B
     */
-    const verify_1 = () => {
-        const left = pow(g, proof.response_1, q)
-        const right = proof.commitment_11 / pow(A, proof.challange_1, q)
-        return left === right
-    }
-    const verify_2 = () => {
-        const left = pow(B, proof.response_1, q)
-        const right = proof.commitment_12 / pow(L, proof.challange_1, q)
-        return left === right
-    }
-    const verify_3 = () => {
-        const left = pow(g, proof.response_2, q)
-        const right = proof.commitment_21 / pow(A, proof.challange_2, q)
-        return left == right
-    }
-    const verify_4 = () => {
-        const left = pow(B, proof.response_2, q)
-        const right = proof.commitment_22 / pow(L / g, proof.challange_2, q)
-        return left == right
-    }
-    return verify_1() && verify_2() && verify_3() && verify_4()
-}
+  const verify_1 = () => {
+    const left = pow(g, proof.response_1, p);
+    // const right = proof.commitment_11 / pow(A, proof.challange_1, q);
+    const right = (proof.commitment_11 * pow(A, -proof.challange_1, p)) % p;
+    // const right =
+    //   (proof.commitment_11 * egcd( pow(A, proof.challange_1, p), p)) % p; // wrong
+    console.log("Verify 1...");
 
-const generateCommitmentNIZKProof = (statement, g, q, a, b) => {
-    /*
+    return left === right;
+  };
+  const verify_2 = () => {
+    const left = pow(B, proof.response_1, p);
+    const right = (proof.commitment_12 * pow(L, -proof.challange_1, p)) % p;
+    console.log("Verify 2...");
+    return left === right;
+  };
+  const verify_3 = () => {
+    const left = pow(g, proof.response_2, p);
+    const right = (proof.commitment_21 * pow(A, -proof.challange_2, p)) % p;
+    console.log("Verify 3...");
+    return left === right;
+  };
+  const verify_4 = () => {
+    const left = pow(B, proof.response_2, p);
+    const right =
+      (proof.commitment_22 * pow(L * egcd(g, p), -proof.challange_2, p)) % p;
+
+    console.log("Verify 4...");
+    return left === right;
+  };
+  return verify_1() && verify_2() && verify_3() && verify_4();
+};
+
+const generateCommitmentNIZKProof = (statement, g, q, p, a, b, id) => {
+  /*
     Generate proof of well-formedness of commitment.
     ----
     Input: 
@@ -89,64 +135,75 @@ const generateCommitmentNIZKProof = (statement, g, q, a, b) => {
     Output:
         Proof(challange1, challange2, Response1, Response2)
     */
-    const proof = new commitmentNIZKProof()
 
-    if (statement === 0) {
-        const r1 = randrange(1n, q)
-        const r2 = randrange(1n, q)
-        const ch2 = randrange(1n, q)
+  const proof = new commitmentNIZKProof();
 
-        proof.commitment_11 = pow(g, r1, q)
-        proof.commitment_12 = pow(g, b * r1, q)
-        proof.commitment_21 = pow(g, r2, q) * pow(g, a * ch2, q)
-        proof.commitment_22 = pow(g, b * r2, q) * pow(g, (a * b - 1) * ch2, q )
-        const ch = randomOracle()
-        const ch1 = ch - ch2
+  if (statement === 0n) {
+    const r1 = randrange(1n, q);
+    const r2 = randrange(1n, q);
+    const ch2 = randrange(1n, q);
+    
+    proof.commitment_11 = pow(g, r1, p);
+    proof.commitment_12 = pow(g, b * r1, p);
+    proof.commitment_21 = (pow(g, r2, p) * pow(g, a * ch2, p)) % p;
+    proof.commitment_22 =
+      (pow(g, b * r2, p) * pow(g, (a * b - 1n) * ch2, p)) % p; // wrong
+    const ch = randomOracle();
+    const ch1 = ch - ch2;
 
-        proof.challange_1 = ch1
-        proof.challange_2 = ch2
-        proof.response_1 = r1 - a * ch1
-        proof.response_2 = r2
-    } 
-    return proof
-}
+    proof.challange_1 = ch1;
+    proof.challange_2 = ch2;
+    proof.response_1 = r1 - a * ch1;
+    proof.response_2 = r2;
+  }
+  return proof;
+};
 
 const init_schnorr_group = () => {
-    // const generate_q_r_p = () => {
-    //     const q = random_prime(2**128)
-    //     const r = randrange(1, 2**128)
-    //     const p = q * r + 1
-    //     return [q, r, p]
-    // }
+  // const generate_q_r_p = () => {
+  //     const q = random_prime(2**128)
+  //     const r = randrange(1, 2**128)
+  //     const p = q * r + 1
+  //     return [q, r, p]
+  // }
 
-    // let [q, r, p] = generate_q_r_p()
-    // while (!is_prime(p)) {
-    //   [q, r, p] = generate_q_r_p()
-    // }
-    // let h = randrange(2, p)
-    // while (pow(h, r, p) == 1) {
-    //   h = randrange(2, p)
-    // }
+  // let [q, r, p] = generate_q_r_p()
+  // while (!is_prime(p)) {
+  //   [q, r, p] = generate_q_r_p()
+  // }
+  // let h = randrange(2, p)
+  // while (pow(h, r, p) == 1) {
+  //   h = randrange(2, p)
+  // }
 
-    // const g = pow(h, r, p)
-    const q = BigInt(258393462243248066492839594748738579341)
-    const r = BigInt(62899182763490337447667364792829983028)
-    const p = BigInt(16252737606529100087849781950254135463855596949069201443859132907333861424549)
-    const h = BigInt(6281570285727367405194108295402009300483320397540626769118385930123123666911)
-    const g = BigInt(6208096989873192183979017114395136128292238284465038123156847208951979729608)
+  // const g = pow(h, r, p)
+  const q = 40300822268012439790266307816395212813n;
+  const r = 26952303768783423571564322206900570116n;
+  const p = 1086200003899222600948253011498381887830171935499051749186574368982848096309n;
+  const h = 653219150466924647793780487640641701902051287698290240683401509111697752952n;
+  const g = 943267369195946417894628291488739180537287774708141116943693656138933379742n;
 
-    return [q, r, p, h, g]
+  return [q, r, p, h, g];
+};
+const statement = 0n;
+const [q, r, p, h, g] = init_schnorr_group();
+const alpha = randrange(1n, q);
+const beta = randrange(1n, q);
 
-}
-const statement = 1
-const [q, r, p, h, g] = init_schnorr_group()
-const alpha = randrange(1n, q)
-const beta = randrange(1n, q)
-const A = pow(g, alpha, q)
-const B = pow(g, beta, q)
-const L = pow(g, (alpha * beta + statement), q)
-const id = 1
+const A = pow(g, alpha, p);
+const B = pow(g, beta, p);
+const L = pow(g, alpha * beta + statement, p);
 
-const proof = generateCommitmentNIZKProof(statement, g, q, alpha, beta, id)
-const res = verifyCommitmentNIZKProof(proof, g, q, L, A, B)
-console.log(res)
+const id = 1n;
+
+const proof = generateCommitmentNIZKProof(statement, g, q, p, alpha, beta, id);
+// console.log("check c1", proof.challange_1.toString());
+// console.log("check c2", proof.challange_2.toString());
+// console.log("check 11", proof.commitment_11.toString());
+// console.log("check 12", proof.commitment_12.toString());
+// console.log("check 21", proof.commitment_21.toString());
+// console.log("check 22", proof.commitment_22.toString());
+// console.log("check r1", proof.response_1.toString());
+// console.log("check r2", proof.response_2.toString());
+const res = verifyCommitmentNIZKProof(proof, g, p, L, A, B);
+console.log(res);
