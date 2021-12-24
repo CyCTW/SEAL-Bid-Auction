@@ -128,7 +128,7 @@ def generateStageOneNIZKProof(statement, g, p, q, a, x, L, A, B, M, X, Y, R, id)
         proof.commitment_22 = pow(g, r22, p) * pow(A, ch2, p)
         proof.commitment_23 = pow(R, r21, p) * pow(M, ch2, p)
         proof.commitment_24 = pow(B, r22, p) * pow(L / g, ch2, p)
-        ch = randomOracle(g, pow(g, a, p), pow(g, b, p), r11, r12, id) # H(g || y1 || y2 || r1 || r2 || id)
+        ch = randomOracle(g, A, B, r11, r12, id) # H(g || y1 || y2 || r1 || r2 || id)
         ch1 = ch - ch2
 
         proof.challange_1 = ch1
@@ -153,7 +153,7 @@ def generateStageOneNIZKProof(statement, g, p, q, a, x, L, A, B, M, X, Y, R, id)
         proof.commitment_12 = pow(g, r12, p) * pow(A, ch1, p)
         proof.commitment_13 = pow(Y, r11, p) * pow(M, ch1, p)
         proof.commitment_14 = pow(B, r12, p) * pow(L, ch1, p)
-        ch = randomOracle(g, pow(g, a, p), pow(g, b, p), r11, r12, id) # H(g || y1 || y2 || r1 || r2 || id)
+        ch = randomOracle(g, A, B, r11, r12, id) # H(g || y1 || y2 || r1 || r2 || id)
         ch2 = ch - ch1
 
         proof.challange_1 = ch1
