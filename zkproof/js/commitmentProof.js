@@ -15,6 +15,7 @@ const pow = (base, exp, m) => {
     return (((half * half) % m) * base) % m;
   }
 };
+
 const randrange = (min, max) => {
   // TODO: Use a secure random number generator
   let diff = max - min;
@@ -28,7 +29,8 @@ const randrange = (min, max) => {
   }
   return (val % diff) + min;
 };
-function egcd(a, b) {
+
+const egcd = (a, b) => {
   let s = 0n,
     old_s = 1n;
   let t = 1n,
@@ -47,11 +49,19 @@ function egcd(a, b) {
   // console.log("Bezout coef: ", old_s.toString(), old_t.toString());
   // console.log("GCD: ", old_r.toString());
   // console.log("Quot by GCD: ", s, t);
-  return old_s;
+
+  // TODO: 
+  // If coef old_s < 0, add large prime p to make it become positive
+  // This approach temporary solve the problem. (?)
+  if (old_s < 0) {
+    return old_s + b
+  } else {
+    return old_s;
+  }
 }
 
 const randomOracle = () => {
-  // TODO: SHA256 random oracle
+  // TODO: Add SHA256 random oracle code
   return 41276046190021301260089578926574153588091408971038812136256491021118072847065n;
 };
 
@@ -90,31 +100,29 @@ const verifyCommitmentNIZKProof = (proof, g, p, L, A, B) => {
     */
   const verify_1 = () => {
     const left = pow(g, proof.response_1, p);
-    // const right = proof.commitment_11 / pow(A, proof.challange_1, q);
     const right = (proof.commitment_11 * pow(A, -proof.challange_1, p)) % p;
-    // const right =
-    //   (proof.commitment_11 * egcd( pow(A, proof.challange_1, p), p)) % p; // wrong
     console.log("Verify 1...");
-
     return left === right;
   };
+
   const verify_2 = () => {
     const left = pow(B, proof.response_1, p);
     const right = (proof.commitment_12 * pow(L, -proof.challange_1, p)) % p;
     console.log("Verify 2...");
     return left === right;
   };
+
   const verify_3 = () => {
     const left = pow(g, proof.response_2, p);
     const right = (proof.commitment_21 * pow(A, -proof.challange_2, p)) % p;
     console.log("Verify 3...");
     return left === right;
   };
+
   const verify_4 = () => {
     const left = pow(B, proof.response_2, p);
     const right =
       (proof.commitment_22 * pow(L * egcd(g, p), -proof.challange_2, p)) % p;
-
     console.log("Verify 4...");
     return left === right;
   };
@@ -160,23 +168,28 @@ const generateCommitmentNIZKProof = (statement, g, q, p, a, b, id) => {
 };
 
 const init_schnorr_group = () => {
-  // const generate_q_r_p = () => {
-  //     const q = random_prime(2**128)
-  //     const r = randrange(1, 2**128)
-  //     const p = q * r + 1
-  //     return [q, r, p]
-  // }
+  // TODO: Add random prime generation code
+  /*
+  const generate_q_r_p = () => {
+      const q = random_prime(2**128)
+      const r = randrange(1, 2**128)
+      const p = q * r + 1
+      return [q, r, p]
+  }
 
-  // let [q, r, p] = generate_q_r_p()
-  // while (!is_prime(p)) {
-  //   [q, r, p] = generate_q_r_p()
-  // }
-  // let h = randrange(2, p)
-  // while (pow(h, r, p) == 1) {
-  //   h = randrange(2, p)
-  // }
+  let [q, r, p] = generate_q_r_p()
+  while (!is_prime(p)) {
+    [q, r, p] = generate_q_r_p()
+  }
+  let h = randrange(2, p)
+  while (pow(h, r, p) == 1) {
+    h = randrange(2, p)
+  }
 
-  // const g = pow(h, r, p)
+  const g = pow(h, r, p)
+  */
+
+  // Temporary use a valid (q,r,p) pair 
   const q = 40300822268012439790266307816395212813n;
   const r = 26952303768783423571564322206900570116n;
   const p = 1086200003899222600948253011498381887830171935499051749186574368982848096309n;
@@ -197,13 +210,6 @@ const L = pow(g, alpha * beta + statement, p);
 const id = 1n;
 
 const proof = generateCommitmentNIZKProof(statement, g, q, p, alpha, beta, id);
-// console.log("check c1", proof.challange_1.toString());
-// console.log("check c2", proof.challange_2.toString());
-// console.log("check 11", proof.commitment_11.toString());
-// console.log("check 12", proof.commitment_12.toString());
-// console.log("check 21", proof.commitment_21.toString());
-// console.log("check 22", proof.commitment_22.toString());
-// console.log("check r1", proof.response_1.toString());
-// console.log("check r2", proof.response_2.toString());
+
 const res = verifyCommitmentNIZKProof(proof, g, p, L, A, B);
 console.log(res);
