@@ -60,13 +60,13 @@ const egcd = (a, b) => {
         return old_s;
 }
   
-const randomOracle = () => {
+const randomOracle = (...args) => {
     // TODO: Add SHA256 random oracle code
-    const message = ""
-    for(let i = 0; i < arguments.length; i++) {
-        message = message.concat(arguments[i])
+    let message = ""
+    for(let i = 0; i < args.length; i++) {
+        message = message.concat(args[i])
     }
-    console.log("Message: ", message)
+    // console.log("Message: ", message)
     var md = forge.md.sha256.create();
     md.update(message);
     const digest = md.digest().toHex()
