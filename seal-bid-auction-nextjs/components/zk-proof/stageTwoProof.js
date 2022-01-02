@@ -44,13 +44,7 @@ class stageTwoProof {
     }
 }
 
-class group_parameters {
-    constructor(g, q, p) {
-        this.g = g
-        this.p = p
-        this.q = q
-    }
-}
+
 
 class private_keys {
     constructor(a, b, x, r, x_, r_) {
@@ -197,8 +191,9 @@ const verifyStageTwoNZIKProof = (proof, groups, publics ) => {
 }
 
 const init = async (statement) => {
-    const [q, r_d, p, h, g] = await init_schnorr_group();
-
+    const groups = await init_schnorr_group();
+    const {g, q, p} = groups
+    
     const a = randrange(1n, q);
     const b = randrange(1n, q);
     const x = randrange(1n, q); 
@@ -235,7 +230,7 @@ const init = async (statement) => {
         L = pow(g, (a * b), p) 
     }
 
-    const groups = new group_parameters(g, q, p);
+    // const groups = new group_parameters(g, q, p);
     const secrets = new private_keys(a, b, x, r, x_, r_);
     const publics = new public_keys(A, B, X, R, X_, R_, L, Y, Y_, M, M_)
     return [groups, secrets, publics];
@@ -400,7 +395,7 @@ const generateStageTwoNIZKProof = async (statement, id)=> {
         proof.response_31 = r31 - x * ch3
         proof.response_32 = r32 - x_ * ch3
     }
-    return [proof, groups, publics];
+    return [proof, publics];
 }
 
 export {generateStageTwoNIZKProof, verifyStageTwoNZIKProof}

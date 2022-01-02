@@ -22,13 +22,6 @@ class commitmentNIZKProof {
     }
 }
 
-class group_parameters {
-    constructor(g, q, p) {
-        this.g = g
-        this.p = p
-        this.q = q
-    }
-}
 
 class private_keys {
     constructor(a, b) {
@@ -92,7 +85,8 @@ const verifyCommitmentNIZKProof = (proof, groups, publics) => {
   
 
 const init = async (statement) => {
-    const [q, r, p, h, g] = await init_schnorr_group();
+    const groups = await init_schnorr_group();
+    const {g, q, p} = groups
     const a = randrange(1n, q);
     const b = randrange(1n, q);
 
@@ -100,7 +94,7 @@ const init = async (statement) => {
     const B = pow(g, b, p);
     const L = pow(g, a * b + statement, p);
 
-    const groups = new group_parameters(g, q, p);
+    // const groups = new group_parameters(g, q, p);
     const secrets = new private_keys(a, b);
     const publics = new public_keys(A, B, L)
     
@@ -126,6 +120,7 @@ const generateCommitmentNIZKProof = async (statement, id) => {
     const {g, q, p} = groups;
     const {a, b} = secrets;
     const {A, B, L} = publics;
+    const epsilon = [L, A, B]
 
     if (statement === 0n) {
         const r1 = randrange(1n, q);
@@ -161,7 +156,7 @@ const generateCommitmentNIZKProof = async (statement, id) => {
         proof.response_1 = r1
         proof.response_2 = r2 - a * ch2
     }
-    return [proof, groups, publics];
+    return [epsilon, proof, publics];
 };
 
 export {generateCommitmentNIZKProof, verifyCommitmentNIZKProof}

@@ -18,14 +18,6 @@ class publicKeyNIZKProof {
     }
 }
 
-class group_parameters {
-    constructor(g, q, p) {
-        this.g = g
-        this.p = p
-        this.q = q
-    }
-}
-
 class private_keys {
     constructor(x, r) {
         this.x = x
@@ -70,14 +62,15 @@ const verifyPublicKeyNIZKProof = (proof, groups, publics) => {
 }
 
 const init = async () => {
-    const [q, r_, p, h, g] = await init_schnorr_group();
+    const groups = await init_schnorr_group();
+    const {g, q, p} = groups
+
     const x = randrange(1n, q);
     const r = randrange(1n, q);
 
     const X = pow(g, x, p);
     const R = pow(g, r, p);
 
-    const groups = new group_parameters(g, q, p);
     const secrets = new private_keys(x, r);
     const publics = new public_keys(X, R)
     
@@ -117,7 +110,7 @@ const generatePublicKeyNIZKProof = async (id) => {
     proof.challange_x = ch_x
     proof.challange_r = ch_r
 
-    return [proof, groups, publics]
+    return [proof, publics]
 }
 
 export {generatePublicKeyNIZKProof, verifyPublicKeyNIZKProof}

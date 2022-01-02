@@ -24,13 +24,6 @@ class stageOneProof {
     }
 }
 
-class group_parameters {
-    constructor(g, q, p) {
-        this.g = g
-        this.p = p
-        this.q = q
-    }
-}
 
 class private_keys {
     constructor(a, b, x, r) {
@@ -120,7 +113,8 @@ const verifyStageOneNZIKProof = (proof, groups, publics) => {
 }
 
 const init = async (statement) => {
-    const [q, r_, p, h, g] = await init_schnorr_group();
+    const groups = await init_schnorr_group();
+    const {g, q, p} = groups
 
     const a = randrange(1n, q);
     const b = randrange(1n, q);
@@ -139,7 +133,6 @@ const init = async (statement) => {
     else
         M = pow(R, x, p)
 
-    const groups = new group_parameters(g, q, p);
     const secrets = new private_keys(a, b, x, r);
     const publics = new public_keys(A, B, X, R, L, Y, M)
     
@@ -183,7 +176,7 @@ const generateStageOneNIZKProof = async (statement, id) => {
         proof.commitment_22 = pow(g, r22, p) * pow(A, ch2, p) % p
         proof.commitment_23 = pow(R, r21, p) * pow(M, ch2, p) % p
         proof.commitment_24 = pow(B, r22, p) * pow(L * egcd(g, p), ch2, p) % p
-        const ch = randomOracle(g, A, B, proof.commitment_11, commitment_12, id) 
+        const ch = randomOracle(g, A, B, proof.commitment_11, proof.commitment_12, id) 
         const ch1 = ch - ch2
 
         proof.challange_1 = ch1
@@ -219,7 +212,7 @@ const generateStageOneNIZKProof = async (statement, id) => {
         proof.response_21 = r21 - x * ch2
         proof.response_22 = r22 - a * ch2
     }
-    return [proof, groups, publics];
+    return [proof, publics];
 }
 
 export {generateStageOneNIZKProof, verifyStageOneNZIKProof}
