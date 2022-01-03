@@ -6,6 +6,7 @@ import {
   init_schnorr_group,
   findPrivateCommitment,
   findPrivateKeys,
+  compute_schnorr,
 } from "./utils.js";
 
 class stageTwoProof {
@@ -263,8 +264,10 @@ const init = async ({
   const X_ = pow(g, x_, p);
   const R_ = pow(g, r_, p);
   // TODO: Modify Y
-  const Y = pow(g, b, p);
-  const Y_ = pow(g, b, p);
+  const y = await compute_schnorr(pubKeys, iter, id, p);
+  const y_ = await compute_schnorr(pubKeys, lastDecidingIter, id, p)
+  const Y = pow(y, x, p);
+  const Y_ = pow(y_, x_, p);
   let L = 0n,
     M = 0n,
     M_ = 0n;

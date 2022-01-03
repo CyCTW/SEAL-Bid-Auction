@@ -218,7 +218,8 @@ const generateStageOneNIZKProof = async ({
   const { g, q, p } = groups;
   const { a, b, x, r } = secrets;
   const { A, B, X, R, Y, L, M } = publics;
-
+  
+  console.log("G_G", Y, proof, publics, groups)
   if (statement === 0n) {
     const r11 = randrange(1n, q);
     const r12 = randrange(1n, q);

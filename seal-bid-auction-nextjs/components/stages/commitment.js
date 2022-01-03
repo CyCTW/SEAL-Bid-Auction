@@ -72,7 +72,7 @@ const commitPrice = async (bid_price, id) => {
 
 export default function Commitment({
   socket,
-  Id,
+  id,
   setIsCommitmentFinish,
   numOfParticipants,
   roundState,
@@ -116,11 +116,11 @@ export default function Commitment({
 
     const bid_price = price;
     // TODO: change to socketio id
-    const [proofs, commitment_secrets] = await commitPrice(bid_price, Id);
+    const [proofs, commitment_secrets] = await commitPrice(bid_price, id);
 
     setPrivateCommitment([...commitment_secrets]);
     // setPrivateKeys({...privateKeys, ...secrets})
-    socket.emit("commitment", JSON.stringify({ Id, commitment: proofs }));
+    socket.emit("commitment", JSON.stringify({ id, commitment: proofs }));
     setIsSubmittedCommitment(true);
   };
 

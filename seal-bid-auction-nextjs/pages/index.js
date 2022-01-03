@@ -11,7 +11,7 @@ import RoundTwo from "../components/stages/roundTwo";
 
 export default function Home() {
   const [socket, setSocket] = useState(null);
-  const [Id, setId] = useState(0);
+  const [id, setId] = useState(0);
   const [pubKeys, setPubKeys] = useState([]);
 
   const [numOfParticipants, setNumOfParticipants] = useState(2);
@@ -19,6 +19,7 @@ export default function Home() {
   const [binPrice, setBinPrice] = useState("");
   const [currentBidPrice, setCurrentBidPrice] = useState("");
   const [lastDecidingIter, setLastDecidingIter] = useState(0)
+  const [isJunction, setIsJunction] = useState(false);
 
   // States that control all user's submitting condition
   const [isCommitmentFinish, setIsCommitmentFinish] = useState(false);
@@ -28,6 +29,7 @@ export default function Home() {
   // Private information
   const [privateKeys, setPrivateKeys] = useState([]);
   const [privateCommitment, setPrivateCommitment] = useState([]);
+  const [decidingBits, setDecidingBits] = useState([])
   /* 
     privateKeys = {
       x, r, a, b
@@ -52,7 +54,7 @@ export default function Home() {
           <div>
             <Commitment
               socket={socket}
-              Id={Id}
+              id={id}
               setIsCommitmentFinish={setIsCommitmentFinish}
               numOfParticipants={numOfParticipants}
               roundState={roundState}
@@ -67,7 +69,7 @@ export default function Home() {
           <div>
             <RoundOne
               socket={socket}
-              Id={Id}
+              id={id}
               pubKeys={pubKeys}
               setPubKeys={setPubKeys}
               roundState={roundState}
@@ -81,7 +83,7 @@ export default function Home() {
           <div>
             <RoundTwo
               socket={socket}
-              Id={Id}
+              id={id}
               pubKeys={pubKeys}
               roundState={roundState}
               setRoundState={setRoundState}
@@ -95,6 +97,10 @@ export default function Home() {
               privateKeys={privateKeys}
               lastDecidingIter={lastDecidingIter}
               setLastDecidingIter={setLastDecidingIter}
+              isJunction={isJunction}
+              setIsJunction={setIsJunction}
+              decidingBits={decidingBits}
+              setDecidingBits={setDecidingBits}
             />
           </div>
         </div>

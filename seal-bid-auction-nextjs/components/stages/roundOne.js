@@ -25,7 +25,7 @@ const execRoundOne = async (iter, id) => {
     return [{pubkey_publics, pubkey_proof, iter, id}, private_keys_]
 }
 
-export default function RoundOne({socket, Id, pubKeys, setPubKeys, numOfParticipants, iter, roundState, setRoundState,
+export default function RoundOne({socket, id, pubKeys, setPubKeys, numOfParticipants, iter, roundState, setRoundState,
     privateKeys, setPrivateKeys}) {
     // const [iter, setIter] = useState(1)
     const [isSubmittedRoundOne, setIsSubmittedRoundOne] = useState(false)
@@ -55,7 +55,7 @@ export default function RoundOne({socket, Id, pubKeys, setPubKeys, numOfParticip
 
     const sendPubkeys = async () => {
         // TODO: change to socketio id
-        const [pubkey, privatekey] = await execRoundOne(iter, Id)
+        const [pubkey, privatekey] = await execRoundOne(iter, id)
         setPrivateKeys([...privateKeys, privatekey])
         socket.emit('round1', JSON.stringify(pubkey) )
         setIsSubmittedRoundOne(true)
