@@ -2,9 +2,9 @@ var forge = require("node-forge");
 const isPrime = require("prime-number");
 class group_parameters {
   constructor(g, q, p) {
-      this.g = g
-      this.p = p
-      this.q = q
+    this.g = g;
+    this.p = p;
+    this.q = q;
   }
 }
 
@@ -120,4 +120,52 @@ const init_schnorr_group = async () => {
   return new group_parameters(g, q, p);
 };
 
-export { pow, randrange, egcd, randomOracle, init_schnorr_group };
+const findPrivateCommitment = (privateCommitment, iter) => {
+  console.log("Private Commitment", privateCommitment);
+  for (let commit of privateCommitment) {
+    if (commit.bit_idx == iter) {
+      return [BigInt(commit.a), BigInt(commit.b)];
+    }
+  }
+  return [-1n, -1n];
+};
+
+const findPrivateKeys = (privateKeys, iter) => {
+  for (let privateKey of privateKeys) {
+    if (privateKey.iter == iter) {
+      return [BigInt(privateKey.x), BigInt(privateKey.r)];
+    }
+  }
+  return [-1n, -1n];
+};
+
+const compute_schnorr = async (pubKeys, iter, id, p) => {
+  let ans = 1n;
+  for (let pubKey of pubKeys) {
+    if (pubKey.iter == iter) {
+      if (pubKey.id < id) {
+        ans *= BigInt(pubKey.pubkey_publics.X);
+        ans = ans % p;
+      } else if (pubKey.id > id) {
+        // * A^-1
+        ans *= egcd(BigInt(pubKey.pubkey_publics.X), p);
+        console.log("Ans: ", ans);
+        console.log("p: ", p);
+        ans = ans % p;
+      }
+    }
+  }
+  console.log("yij: ", ans.toString());
+  return ans;
+};
+
+export {
+  pow,
+  randrange,
+  egcd,
+  randomOracle,
+  init_schnorr_group,
+  findPrivateKeys,
+  findPrivateCommitment,
+  compute_schnorr,
+};

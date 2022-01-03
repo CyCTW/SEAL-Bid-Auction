@@ -156,7 +156,7 @@ const generateCommitmentNIZKProof = async (statement, id) => {
         proof.response_1 = r1
         proof.response_2 = r2 - a * ch2
     }
-    return [epsilon, proof, publics];
+    return [epsilon, proof, publics, secrets];
 };
 
 export {generateCommitmentNIZKProof, verifyCommitmentNIZKProof}
