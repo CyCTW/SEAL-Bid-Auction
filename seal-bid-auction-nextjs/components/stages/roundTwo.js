@@ -24,8 +24,7 @@ const execRoundTwo = async ({
   privateCommitment,
   privateKeys,
   decidingBits,
-}
-) => {
+}) => {
   /*
     Compute the roundTwo of zk-proof, then
     submited to public bulletin.
@@ -38,33 +37,24 @@ const execRoundTwo = async ({
 
   let statement = 0;
   let d_bit = 0;
-  // TODO: Pass Yij into function
   if (isJunction) {
-    // TODO: Find previous bit and decide statement
-    let lastDecidingBit = 0
-    
-    for(let decidingBit of decidingBits) {
-        if (decidingBit.iter === lastDecidingIter) {
-            lastDecidingBit = decidingBit.d_bit
-        }
+    let lastDecidingBit = 0;
+
+    for (let decidingBit of decidingBits) {
+      if (decidingBit.iter === lastDecidingIter) {
+        lastDecidingBit = decidingBit.d_bit;
+      }
     }
-    console.log("Last deciding bit", lastDecidingBit)
-    console.log("Last deciding iter", lastDecidingIter)
 
     if (bit === 1 && lastDecidingBit === 1) {
-        console.log("statement 0")
-        d_bit = 1
-        statement = 0;
+      d_bit = 1;
+      statement = 0;
     } else if (bit === 0 && lastDecidingBit === 1) {
-        console.log("statement 1")
-
-        d_bit = 0
-        statement = 1
+      d_bit = 0;
+      statement = 1;
     } else {
-        console.log("statement 2")
-        
-        d_bit = 0
-        statement = 2
+      d_bit = 0;
+      statement = 2;
     }
 
     const [B, B_proof, B_publics, groups] = await generateStageTwoNIZKProof({
@@ -84,11 +74,9 @@ const execRoundTwo = async ({
     bigIntToString(B_proof);
     bigIntToString(groups);
     return [{ B, B_publics, B_proof, iter, id, groups }, d_bit];
-
   } else {
-    
-    d_bit = bit
-    statement = bit
+    d_bit = bit;
+    statement = bit;
     const [B, B_proof, B_publics, groups] = await generateStageOneNIZKProof({
       statement: BigInt(statement),
       id: BigInt(id),
@@ -98,7 +86,7 @@ const execRoundTwo = async ({
       privateKeys,
     });
     // Optional
-    verifyStageOneNZIKProof(B_proof, groups_, B_publics)
+    verifyStageOneNZIKProof(B_proof, groups_, B_publics);
 
     B = B.toString();
     bigIntToString(B_publics);
@@ -106,7 +94,6 @@ const execRoundTwo = async ({
     bigIntToString(groups);
     return [{ B, B_publics, B_proof, iter, id, groups }, d_bit];
   }
-  
 };
 
 const computeCurrentBitPrice = (roundTwoProofs, iter) => {
@@ -115,10 +102,8 @@ const computeCurrentBitPrice = (roundTwoProofs, iter) => {
     if (roundTwoProof.iter == iter) {
       T *= BigInt(roundTwoProof.B);
       T %= BigInt(roundTwoProof.groups.p);
-      console.log("T: ", T.toString())
     }
   }
-  console.log("T: ", T.toString());
   return T === 1n ? 0 : 1;
 };
 
@@ -134,14 +119,15 @@ export default function RoundTwo({
   roundState,
   setRoundState,
   binPrice,
-  currentBidPrice,
-  setCurrentBidPrice,
+  currentBinPrice,
+  setCurrentBinPrice,
   privateCommitment,
   privateKeys,
   isJunction,
   setIsJunction,
   decidingBits,
   setDecidingBits,
+  totalBits,
 }) {
   const [roundTwoProofs, setRoundTwoProofs] = useState([]);
   const [isSubmittedRoundTwo, setIsSubmittedRoundTwo] = useState(false);
@@ -149,8 +135,6 @@ export default function RoundTwo({
   useEffect(() => {
     socket.on("round2", (message) => {
       const roundTwoProof = JSON.parse(message);
-      console.log("Received: ", roundTwoProof);
-
       setRoundTwoProofs((prevRoundTwoProofs) => {
         const newProofs = [...prevRoundTwoProofs, roundTwoProof];
 
@@ -161,19 +145,19 @@ export default function RoundTwo({
   useEffect(() => {
     if (roundTwoProofs.length === iter * numOfParticipants) {
       // Finish one iteration
-      // TODO: Compute Tij
       const bit = computeCurrentBitPrice(roundTwoProofs, iter);
 
-      setCurrentBidPrice(currentBidPrice + bit.toString());
+      setCurrentBinPrice(currentBinPrice + bit.toString());
       if (bit === 1) {
         // Store the last deciding bit position
-        setLastDecidingIter(iter)
-        setIsJunction(true)
+        setLastDecidingIter(iter);
+        setIsJunction(true);
       }
       setIsSubmittedRoundTwo(false);
       setIter(iter + 1);
-      if (iter >= 10) {
-        setRoundState(4)
+      if (iter >= totalBits) {
+        // Auction end...
+        setRoundState(4);
       } else {
         setRoundState(1);
       }
@@ -183,7 +167,6 @@ export default function RoundTwo({
   const sendRoundTwoProof = async () => {
     // TODO: change to socketio id
     const bit = parseInt(binPrice[iter - 1]);
-    console.log("Bit: ", bit)
     const [roundTwoProof, d_bit] = await execRoundTwo({
       iter,
       id,
@@ -192,16 +175,14 @@ export default function RoundTwo({
       pubKeys,
       lastDecidingIter,
       privateCommitment,
-      privateKeys, 
+      privateKeys,
       decidingBits,
-      setDecidingBits
-    }
-    );
+      setDecidingBits,
+    });
     socket.emit("round2", JSON.stringify(roundTwoProof));
-    setDecidingBits([...decidingBits, {iter, d_bit}])
+    setDecidingBits([...decidingBits, { iter, d_bit }]);
     setIsSubmittedRoundTwo(true);
   };
-  console.log("RoundTwoProofs: ", roundTwoProofs);
   return (
     <div>
       {roundState === 2 ? (
@@ -219,8 +200,11 @@ export default function RoundTwo({
             onClick={sendRoundTwoProof}
           />{" "}
         </div>
-      ) : isJunction ? <div>Enter junction</div>: <div></div>
-      }
+      ) : isJunction ? (
+        <div>Enter junction</div>
+      ) : (
+        <div></div>
+      )}
     </div>
   );
 }
@@ -228,20 +212,33 @@ export default function RoundTwo({
 pubkeys structure:
 [
     { 
-        iter: 1,
-        id: 3,
-        B,
-        B_publics, 
-        B_proof,
-        groups
+        iter: int,
+        id: int,
+        B: BigInt,
+        B_publics: {
+          A: BigInt,
+          B: BigInt,
+          X: BigInt,
+          R: BigInt,
+          Y: BigInt,
+          L: BigInt,
+          M: BigInt
+        }, 
+        B_proof: {
+          commitment_11: BigInt,
+          commitment_12: BigInt,
+          ...
+          challange_1: BigInt,
+          challange_2: BigInt,
+          ...
+          response_11: BigInt,
+          response_12: BigInt,
+        },
+        groups: {
+          g: BigInt,
+          p: BigInt,
+          q: BigInt,
+        }
     }, 
-    {
-        iter: 1,
-        id: 4,
-        B,
-        B_publics, 
-        B_proof,
-        groups
-    }
 ]
 */

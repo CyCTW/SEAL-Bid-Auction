@@ -142,8 +142,6 @@ const verifyStageOneNZIKProof = (proof, groups, publics) => {
   );
 };
 
-
-
 const init = async (
   statement,
   id,
@@ -157,8 +155,6 @@ const init = async (
 
   const [a, b] = findPrivateCommitment(privateCommitment, iter);
   const [x, r] = findPrivateKeys(privateKeys, iter);
-  console.log("a, b", a, b);
-  console.log("x, r", x, r);
   // const a = randrange(1n, q);
   // const b = randrange(1n, q);
   // const x = randrange(1n, q);
@@ -169,10 +165,7 @@ const init = async (
 
   const X = pow(g, x, p);
   const R = pow(g, r, p);
-  // TODO: Modify Y
-  console.log("Pubkeys in init: ", pubKeys);
   const y = await compute_schnorr(pubKeys, iter, id, p);
-  // const y = 1n;
   const Y = pow(y, x, p);
   let M = 0n;
   if (statement === 0n) M = pow(Y, x, p);
@@ -218,8 +211,7 @@ const generateStageOneNIZKProof = async ({
   const { g, q, p } = groups;
   const { a, b, x, r } = secrets;
   const { A, B, X, R, Y, L, M } = publics;
-  
-  console.log("G_G", Y, proof, publics, groups)
+
   if (statement === 0n) {
     const r11 = randrange(1n, q);
     const r12 = randrange(1n, q);

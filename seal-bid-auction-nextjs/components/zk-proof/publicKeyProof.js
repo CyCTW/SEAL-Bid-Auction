@@ -102,8 +102,6 @@ const generatePublicKeyNIZKProof = async (id) => {
   const { x, r } = secrets;
   const { X, R } = publics;
 
-  console.log("My secret x: ", x.toString());
-  console.log("My secret r: ", r.toString());
   const r1 = randrange(1n, q);
   const r2 = randrange(1n, q);
 

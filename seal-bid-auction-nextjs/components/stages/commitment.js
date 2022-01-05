@@ -2,26 +2,23 @@ import {
   generateCommitmentNIZKProof,
   verifyCommitmentNIZKProof,
 } from "../zk-proof/commitmentProof";
-import {
-  generatePublicKeyNIZKProof,
-  verifyPublicKeyNIZKProof,
-} from "../zk-proof/publicKeyProof";
+
 import { init_schnorr_group } from "../zk-proof/utils";
 
 import { useState, useEffect } from "react";
 import { bigIntToString } from "./utils";
 
-const DectoBinary = (val) => {
-  let bin_val = (val >>> 0).toString(2);
+const DectoBinary = ({ price, totalBits }) => {
+  let bin_val = (price >>> 0).toString(2);
   // TODO padding to some length
   const leng = bin_val.length;
-  for (let i = 0; i < 10 - leng; i++) {
+  for (let i = 0; i < totalBits - leng; i++) {
     bin_val = "0" + bin_val;
   }
   return bin_val;
 };
 
-const commitPrice = async (bid_price, id) => {
+const commitPrice = async ({ bid_price, id, bin_price }) => {
   /*
     Compute the commitment of submitted bid and zk-proof, then
     submited to public bulletin.
@@ -31,40 +28,30 @@ const commitPrice = async (bid_price, id) => {
     id:
     */
   // decimal to binary
-  let bid_price_arr = DectoBinary(bid_price);
   let bit_idx = 1;
   let proofs = [];
   let commitment_secrets = [];
 
-  for (const bit of bid_price_arr) {
+  for (const bit of bin_price) {
     let statement = parseInt(bit);
     // TODO: Put groups to global variables
-    let [epsilon, epsilon_proof, epsilon_publics, commitment_secret] =
+    let [epsilon_proof, epsilon_publics, commitment_secret] =
       await generateCommitmentNIZKProof(BigInt(statement), BigInt(id));
     // let [pubkey_proof, pubkey_publics, prikey_secrets] = await generatePublicKeyNIZKProof(BigInt(id))
     const groups = await init_schnorr_group();
 
     // optional
     verifyCommitmentNIZKProof(epsilon_proof, groups, epsilon_publics);
-    // verifyPublicKeyNIZKProof(pubkey_proof, groups, pubkey_publics)
-    console.log("Success!");
 
-    bigIntToString(epsilon);
     bigIntToString(epsilon_proof);
     bigIntToString(epsilon_publics);
-    // bigIntToString(pubkey_proof)
-    // bigIntToString(pubkey_publics)
 
     proofs.push({
       bit_idx,
-      epsilon,
       epsilon_proof,
       epsilon_publics,
-      // pubkey_publics, pubkey_proof,
     });
     commitment_secrets.push({ bit_idx, ...commitment_secret });
-    console.log(commitment_secrets);
-    // sendCommitment(epsilon, epsilon_proof, pubkey_publics, pubkey_proof, id, bit_idx)
     bit_idx += 1;
   }
   return [proofs, commitment_secrets];
@@ -82,6 +69,7 @@ export default function Commitment({
   setBinPrice,
   privateCommitment,
   setPrivateCommitment,
+  totalBits,
 }) {
   const [isSubmittedCommitment, setIsSubmittedCommitment] = useState(false);
 
@@ -90,7 +78,6 @@ export default function Commitment({
   useEffect(() => {
     socket.on("commitment", (message) => {
       const commitment = JSON.parse(message);
-      console.log("Received: ", commitment);
 
       setCommitments((prevCommitment) => {
         const newCommitment = [...prevCommitment, commitment];
@@ -111,12 +98,16 @@ export default function Commitment({
   }, [commitments]);
 
   const sendCommitment = async () => {
-    const bin_val = DectoBinary(price);
-    setBinPrice(bin_val);
+    const bin_price = DectoBinary({ price, totalBits });
+    setBinPrice(bin_price);
 
     const bid_price = price;
     // TODO: change to socketio id
-    const [proofs, commitment_secrets] = await commitPrice(bid_price, id);
+    const [proofs, commitment_secrets] = await commitPrice({
+      bid_price,
+      id,
+      bin_price,
+    });
 
     setPrivateCommitment([...commitment_secrets]);
     // setPrivateKeys({...privateKeys, ...secrets})
@@ -124,8 +115,6 @@ export default function Commitment({
     setIsSubmittedCommitment(true);
   };
 
-  console.log("Price", price);
-  console.log("Commitments: ", commitments);
   return (
     <div>
       {roundState === 0 ? (
@@ -163,26 +152,34 @@ export default function Commitment({
 /* 
 Commitment structure:
 [
-    {
-      id: 3,
-      commitment: [
-        {
-          bit_idx: 1,
-          epsilon,
-          epsilon_proof,
-          epsilon_public,
-          pubkey_publics, 
-          pubkey_proof,
+  {
+    id: int,
+    commitment: [
+      {
+        bit_idx: int,
+        epsilon_proof: {
+          commitment_11: BigInt,
+          commitment_12: BigInt,
+          commitment_21: BigInt,
+          commitment_21: BigInt,
+          challange_1: BigInt,
+          challange_2: BigInt,
+          response_1: BigInt,
+          response_2: BigInt,
         },
-        {
-          bit_idx: 2,
-          epsilon,
-          epsilon_proof,
-          epsilon_public,
-          pubkey_publics, 
-          pubkey_proof,
+        epsilon_public: {
+          A: BigInt,
+          B: BigInt,
+          L: BigInt
         },
-      ]
-    },
+      },
+      {
+        bit_idx: int,
+        epsilon,
+        epsilon_proof,
+        epsilon_public,
+      },
+    ]
+  },
 ]
 */

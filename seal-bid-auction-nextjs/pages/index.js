@@ -8,6 +8,8 @@ import Commitment from "../components/stages/commitment";
 import { init_schnorr_group } from "../components/zk-proof/utils";
 import RoundOne from "../components/stages/roundOne";
 import RoundTwo from "../components/stages/roundTwo";
+import final from "../components/stages/final";
+import Final from "../components/stages/final";
 
 export default function Home() {
   const [socket, setSocket] = useState(null);
@@ -15,10 +17,11 @@ export default function Home() {
   const [pubKeys, setPubKeys] = useState([]);
 
   const [numOfParticipants, setNumOfParticipants] = useState(2);
+
   const [price, setPrice] = useState(0);
   const [binPrice, setBinPrice] = useState("");
-  const [currentBidPrice, setCurrentBidPrice] = useState("");
-  const [lastDecidingIter, setLastDecidingIter] = useState(0)
+  const [currentBinPrice, setCurrentBinPrice] = useState("");
+  const [lastDecidingIter, setLastDecidingIter] = useState(0);
   const [isJunction, setIsJunction] = useState(false);
 
   // States that control all user's submitting condition
@@ -29,7 +32,10 @@ export default function Home() {
   // Private information
   const [privateKeys, setPrivateKeys] = useState([]);
   const [privateCommitment, setPrivateCommitment] = useState([]);
-  const [decidingBits, setDecidingBits] = useState([])
+  const [decidingBits, setDecidingBits] = useState([]);
+
+  const totalBits = 4;
+
   /* 
     privateKeys = {
       x, r, a, b
@@ -44,13 +50,12 @@ export default function Home() {
     setId(Math.floor(Math.random() * 100));
   }, [setSocket]);
 
-  console.log("Round state", roundState);
   return (
     <div>
       {socket ? (
         <div>
           {price > 0 && <div>Your price {binPrice}</div>}
-          <div>Current price: {currentBidPrice}</div>
+          <div>Current price: {currentBinPrice}</div>
           <div>
             <Commitment
               socket={socket}
@@ -64,6 +69,7 @@ export default function Home() {
               setBinPrice={setBinPrice}
               privateCommitment={privateCommitment}
               setPrivateCommitment={setPrivateCommitment}
+              totalBits={totalBits}
             />
           </div>
           <div>
@@ -91,8 +97,8 @@ export default function Home() {
               iter={iter}
               setIter={setIter}
               binPrice={binPrice}
-              currentBidPrice={currentBidPrice}
-              setCurrentBidPrice={setCurrentBidPrice}
+              currentBinPrice={currentBinPrice}
+              setCurrentBinPrice={setCurrentBinPrice}
               privateCommitment={privateCommitment}
               privateKeys={privateKeys}
               lastDecidingIter={lastDecidingIter}
@@ -101,6 +107,19 @@ export default function Home() {
               setIsJunction={setIsJunction}
               decidingBits={decidingBits}
               setDecidingBits={setDecidingBits}
+              totalBits={totalBits}
+            />
+          </div>
+          <div>
+            <Final
+              socket={socket}
+              id={id}
+              roundState={roundState}
+              binPrice={binPrice}
+              currentBinPrice={currentBinPrice}
+              privateKeys={privateKeys}
+              pubKeys={pubKeys}
+              lastDecidingIter={lastDecidingIter}
             />
           </div>
         </div>

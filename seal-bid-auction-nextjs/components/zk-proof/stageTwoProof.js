@@ -246,15 +246,14 @@ const init = async ({
   iter,
   lastDecidingIter,
   privateCommitment,
-  privateKeys}
-) => {
+  privateKeys,
+}) => {
   const groups = await init_schnorr_group();
   const { g, q, p } = groups;
 
   const [a, b] = findPrivateCommitment(privateCommitment, iter);
   const [x, r] = findPrivateKeys(privateKeys, iter);
   const [x_, r_] = findPrivateKeys(privateKeys, lastDecidingIter); // last deciding bit
-  
 
   const A = pow(g, a, p);
   const B = pow(g, b, p);
@@ -263,9 +262,8 @@ const init = async ({
 
   const X_ = pow(g, x_, p);
   const R_ = pow(g, r_, p);
-  // TODO: Modify Y
   const y = await compute_schnorr(pubKeys, iter, id, p);
-  const y_ = await compute_schnorr(pubKeys, lastDecidingIter, id, p)
+  const y_ = await compute_schnorr(pubKeys, lastDecidingIter, id, p);
   const Y = pow(y, x, p);
   const Y_ = pow(y_, x_, p);
   let L = 0n,
@@ -323,8 +321,8 @@ const generateStageTwoNIZKProof = async ({
     iter,
     lastDecidingIter,
     privateCommitment,
-    privateKeys}
-  );
+    privateKeys,
+  });
 
   const proof = new stageTwoProof();
 

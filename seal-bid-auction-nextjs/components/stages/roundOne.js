@@ -1,11 +1,13 @@
-
-import { generatePublicKeyNIZKProof, verifyPublicKeyNIZKProof } from "../zk-proof/publicKeyProof";
+import {
+  generatePublicKeyNIZKProof,
+  verifyPublicKeyNIZKProof,
+} from "../zk-proof/publicKeyProof";
 import { init_schnorr_group } from "../zk-proof/utils";
 import { bigIntToString } from "./utils";
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from "react";
 
 const execRoundOne = async (iter, id) => {
-    /*
+  /*
     Compute the stageOne of public key and zk-proof, then
     submited to public bulletin.
     ---
@@ -13,76 +15,99 @@ const execRoundOne = async (iter, id) => {
     round:
     id:
     */
-    const [pubkey_proof, pubkey_publics, private_keys] = await generatePublicKeyNIZKProof(BigInt(id))
-    const groups = await init_schnorr_group()
-    
-    // optional
-    verifyPublicKeyNIZKProof(pubkey_proof, groups, pubkey_publics)
-    bigIntToString(pubkey_proof)
-    bigIntToString(pubkey_publics)
-    let private_keys_ = {...private_keys, iter}
-    
-    return [{pubkey_publics, pubkey_proof, iter, id}, private_keys_]
-}
+  const [pubkey_proof, pubkey_publics, private_keys] =
+    await generatePublicKeyNIZKProof(BigInt(id));
+  const groups = await init_schnorr_group();
 
-export default function RoundOne({socket, id, pubKeys, setPubKeys, numOfParticipants, iter, roundState, setRoundState,
-    privateKeys, setPrivateKeys}) {
-    // const [iter, setIter] = useState(1)
-    const [isSubmittedRoundOne, setIsSubmittedRoundOne] = useState(false)
+  // optional
+  verifyPublicKeyNIZKProof(pubkey_proof, groups, pubkey_publics);
+  bigIntToString(pubkey_proof);
+  bigIntToString(pubkey_publics);
+  let private_keys_ = { ...private_keys, iter };
 
-    useEffect(() =>{
-        socket.on('round1', message => {
-            
-            const pubKey = JSON.parse(message)
-            console.log("Received: ", pubKey)
-            
-            setPubKeys((prevPubkeys) => {
-              const newPubkeys = [ ...prevPubkeys, pubKey ]
-            //   newCommitment.push(commitment)
-              
-              return newPubkeys
-            })
-        })
-    }, [socket])
+  return [{ pubkey_publics, pubkey_proof, iter, id }, private_keys_];
+};
 
-    useEffect(() => {
-        if (pubKeys.length === iter * numOfParticipants) {
-            setIsSubmittedRoundOne(false)
+export default function RoundOne({
+  socket,
+  id,
+  pubKeys,
+  setPubKeys,
+  numOfParticipants,
+  iter,
+  roundState,
+  setRoundState,
+  privateKeys,
+  setPrivateKeys,
+}) {
+  // const [iter, setIter] = useState(1)
+  const [isSubmittedRoundOne, setIsSubmittedRoundOne] = useState(false);
 
-            setRoundState(2)
-          }
-    }, [pubKeys])
+  useEffect(() => {
+    socket.on("round1", (message) => {
+      const pubKey = JSON.parse(message);
 
-    const sendPubkeys = async () => {
-        // TODO: change to socketio id
-        const [pubkey, privatekey] = await execRoundOne(iter, id)
-        setPrivateKeys([...privateKeys, privatekey])
-        socket.emit('round1', JSON.stringify(pubkey) )
-        setIsSubmittedRoundOne(true)
+      setPubKeys((prevPubkeys) => {
+        const newPubkeys = [...prevPubkeys, pubKey];
+        //   newCommitment.push(commitment)
+
+        return newPubkeys;
+      });
+    });
+  }, [socket]);
+
+  useEffect(() => {
+    if (pubKeys.length === iter * numOfParticipants) {
+      setIsSubmittedRoundOne(false);
+
+      setRoundState(2);
     }
-    console.log("RoundOneKeys: ", pubKeys)
-    return (
+  }, [pubKeys]);
+
+  const sendPubkeys = async () => {
+    // TODO: change to socketio id
+    const [pubkey, privatekey] = await execRoundOne(iter, id);
+    setPrivateKeys([...privateKeys, privatekey]);
+    socket.emit("round1", JSON.stringify(pubkey));
+    setIsSubmittedRoundOne(true);
+  };
+  return (
+    <div>
+      {roundState === 1 ? (
         <div>
-        {roundState === 1 ? 
-        <div>
-            {isSubmittedRoundOne ? 
-                   <div>You have submitted round one... wait for others</div> : 
-                  <div>
-                    <h1> Now is Round 1, iteration: {iter}..... </h1> </div>}
-            <input type='button' value='Send roundOne' onClick={sendPubkeys} />
-        </div> : <div></div>
-        }
+          {isSubmittedRoundOne ? (
+            <div>You have submitted round one... wait for others</div>
+          ) : (
+            <div>
+              <h1> Now is Round 1, iteration: {iter}..... </h1>{" "}
+            </div>
+          )}
+          <input type="button" value="Send roundOne" onClick={sendPubkeys} />
         </div>
-    )
+      ) : (
+        <div></div>
+      )}
+    </div>
+  );
 }
 /* 
 pubkeys structure:
 [
     { 
-        iter: 1,
-        id: 3,
-        pubkey_publics, 
-        pubkey_proof
+        iter: int,
+        id: int,
+        pubkey_publics: {
+          X: BigInt,
+          R: BigInt,
+        }, 
+        pubkey_proof: {
+          commitment_x: BigInt;
+          commitment_r: BigInt;
+          challange_x: BigInt;
+          challange_r: BigInt;
+          response_x: BigInt;
+          response_r: BigInt;
+        }
     }, 
     {
         iter: 1,

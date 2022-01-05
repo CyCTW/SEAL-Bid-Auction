@@ -62,7 +62,6 @@ const egcd = (a, b) => {
 };
 
 const randomOracle = (...args) => {
-  // TODO: Add SHA256 random oracle code
   let message = "";
   for (let i = 0; i < args.length; i++) {
     message = message.concat(args[i]);
@@ -77,36 +76,12 @@ const random_prime = (bits) => {
   // var bits = 128;
   return new Promise((resolve, reject) => {
     forge.prime.generateProbablePrime(bits, function (err, num) {
-      console.log("random prime", num.toString());
-      console.log(typeof num);
       resolve(BigInt(num));
     });
   });
 };
 
 const init_schnorr_group = async () => {
-  // TODO: Add random prime generation code
-  // const qq = await random_prime()
-  // console.log("q: ", qq.toString())
-  // const generate_q_r_p = async () => {
-  //     const q = await random_prime(128)
-  //     const r = randrange(1n, BigInt(q))
-  //     const p = q * r + 1n
-  //     return [q, r, p]
-  // }
-
-  // let [q, r, p] = await generate_q_r_p()
-  // while (!isPrime(p)) {
-  //   [q, r, p] = await generate_q_r_p()
-  // }
-  // console.log("p: ", p.toString())
-  // let h = randrange(2n, p)
-  // while (pow(h, r, p) == 1n) {
-  //   h = randrange(2n, p)
-  // }
-
-  // const g = pow(h, r, p)
-
   // Temporary use a valid (q,r,p) pair
   const q = 44054757584985812519348867988622285501n;
   const r = 26952303768783423571564322206900570116n;
@@ -121,7 +96,6 @@ const init_schnorr_group = async () => {
 };
 
 const findPrivateCommitment = (privateCommitment, iter) => {
-  console.log("Private Commitment", privateCommitment);
   for (let commit of privateCommitment) {
     if (commit.bit_idx == iter) {
       return [BigInt(commit.a), BigInt(commit.b)];
@@ -139,6 +113,23 @@ const findPrivateKeys = (privateKeys, iter) => {
   return [-1n, -1n];
 };
 
+const findPublicKeys = (publicKeys, id, iter) => {
+  for (let publicKey of publicKeys) {
+    if (publicKey.id === id && publicKey.iter === iter) {
+      return [
+        BigInt(publicKey.pubkey_publics.X),
+        BigInt(publicKey.pubkey_publics.R),
+      ];
+    }
+  }
+  return [-1n, -1n];
+};
+
+const checkDiscreteLog = async (X, x) => {
+  const groups = await init_schnorr_group();
+  return pow(groups.g, x, groups.p) === X;
+};
+
 const compute_schnorr = async (pubKeys, iter, id, p) => {
   let ans = 1n;
   for (let pubKey of pubKeys) {
@@ -149,13 +140,10 @@ const compute_schnorr = async (pubKeys, iter, id, p) => {
       } else if (pubKey.id > id) {
         // * A^-1
         ans *= egcd(BigInt(pubKey.pubkey_publics.X), p);
-        console.log("Ans: ", ans);
-        console.log("p: ", p);
         ans = ans % p;
       }
     }
   }
-  console.log("yij: ", ans.toString());
   return ans;
 };
 
@@ -167,5 +155,7 @@ export {
   init_schnorr_group,
   findPrivateKeys,
   findPrivateCommitment,
+  findPublicKeys,
   compute_schnorr,
+  checkDiscreteLog,
 };
