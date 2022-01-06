@@ -15,22 +15,23 @@ export default function Final({
   lastDecidingIter,
   privateKeys,
   pubKeys,
+  groups
 }) {
   const [isWinner, setIsWinner] = useState(null);
   const [winnerProof, setWinnerProof] = useState(null);
 
   let pubKeys_ref = useRef(pubKeys);
 
-  const verify = async () => {
+  const verify = () => {
     // 1. Verify corectness of commitment
     // 2. Verify x in last deciding bit
     const winner_proof = winnerProof;
     const [X, R] = findPublicKeys(pubKeys, winner_proof.id, lastDecidingIter);
-    const result = await checkDiscreteLog(X, BigInt(winner_proof.x));
+    const result = checkDiscreteLog(X, BigInt(winner_proof.x), groups);
     return result;
   };
   useEffect(() => {
-    socket.on("final", async (message) => {
+    socket.on("final", (message) => {
       const winner_proof = JSON.parse(message);
       setWinnerProof(winner_proof);
     });

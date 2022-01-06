@@ -6,7 +6,7 @@ import { init_schnorr_group } from "../zk-proof/utils";
 import { bigIntToString } from "./utils";
 import { useState, useEffect } from "react";
 
-const execRoundOne = async (iter, id) => {
+const execRoundOne = ({iter, id, groups}) => {
   /*
     Compute the stageOne of public key and zk-proof, then
     submited to public bulletin.
@@ -16,8 +16,8 @@ const execRoundOne = async (iter, id) => {
     id:
     */
   const [pubkey_proof, pubkey_publics, private_keys] =
-    await generatePublicKeyNIZKProof(BigInt(id));
-  const groups = await init_schnorr_group();
+    generatePublicKeyNIZKProof(BigInt(id), groups);
+  // const groups = await init_schnorr_group();
 
   // optional
   verifyPublicKeyNIZKProof(pubkey_proof, groups, pubkey_publics);
@@ -39,6 +39,7 @@ export default function RoundOne({
   setRoundState,
   privateKeys,
   setPrivateKeys,
+  groups
 }) {
   // const [iter, setIter] = useState(1)
   const [isSubmittedRoundOne, setIsSubmittedRoundOne] = useState(false);
@@ -64,9 +65,9 @@ export default function RoundOne({
     }
   }, [pubKeys]);
 
-  const sendPubkeys = async () => {
+  const sendPubkeys = () => {
     // TODO: change to socketio id
-    const [pubkey, privatekey] = await execRoundOne(iter, id);
+    const [pubkey, privatekey] = execRoundOne({iter, id, groups});
     setPrivateKeys([...privateKeys, privatekey]);
     socket.emit("round1", JSON.stringify(pubkey));
     setIsSubmittedRoundOne(true);

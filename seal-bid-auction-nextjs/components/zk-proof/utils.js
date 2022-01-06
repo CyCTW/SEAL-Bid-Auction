@@ -92,7 +92,7 @@ const init_schnorr_group = async () => {
   const g =
     2247381610195599257003531654104927070502769275382448717372496680665253704287n;
 
-  return new group_parameters(g, q, p);
+  return {g, q, p};
 };
 
 const findPrivateCommitment = (privateCommitment, iter) => {
@@ -125,12 +125,12 @@ const findPublicKeys = (publicKeys, id, iter) => {
   return [-1n, -1n];
 };
 
-const checkDiscreteLog = async (X, x) => {
-  const groups = await init_schnorr_group();
+const checkDiscreteLog = (X, x, groups) => {
+  // const groups = await init_schnorr_group();
   return pow(groups.g, x, groups.p) === X;
 };
 
-const compute_schnorr = async (pubKeys, iter, id, p) => {
+const compute_schnorr = (pubKeys, iter, id, p) => {
   let ans = 1n;
   for (let pubKey of pubKeys) {
     if (pubKey.iter == iter) {

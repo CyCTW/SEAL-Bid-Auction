@@ -18,22 +18,25 @@ export default function Home() {
 
   const [numOfParticipants, setNumOfParticipants] = useState(2);
 
+  // States about price
   const [price, setPrice] = useState(0);
   const [binPrice, setBinPrice] = useState("");
   const [currentBinPrice, setCurrentBinPrice] = useState("");
+
   const [lastDecidingIter, setLastDecidingIter] = useState(0);
   const [isJunction, setIsJunction] = useState(false);
+  const [groups, setGroups] = useState({})
 
   // States that control all user's submitting condition
-  const [isCommitmentFinish, setIsCommitmentFinish] = useState(false);
   const [roundState, setRoundState] = useState(0);
   const [iter, setIter] = useState(1);
 
-  // Private information
+  // Private information states of user
   const [privateKeys, setPrivateKeys] = useState([]);
   const [privateCommitment, setPrivateCommitment] = useState([]);
   const [decidingBits, setDecidingBits] = useState([]);
 
+  // Total padding bits
   const totalBits = 4;
 
   /* 
@@ -50,6 +53,12 @@ export default function Home() {
     setId(Math.floor(Math.random() * 100));
   }, [setSocket]);
 
+  useEffect(async () => {
+    const groups = await init_schnorr_group()
+    setGroups(groups)
+    console.log("Set group success!")
+  }, [])
+
   return (
     <div>
       {socket ? (
@@ -60,7 +69,6 @@ export default function Home() {
             <Commitment
               socket={socket}
               id={id}
-              setIsCommitmentFinish={setIsCommitmentFinish}
               numOfParticipants={numOfParticipants}
               roundState={roundState}
               setRoundState={setRoundState}
@@ -70,6 +78,7 @@ export default function Home() {
               privateCommitment={privateCommitment}
               setPrivateCommitment={setPrivateCommitment}
               totalBits={totalBits}
+              groups={groups}
             />
           </div>
           <div>
@@ -84,6 +93,7 @@ export default function Home() {
               iter={iter}
               privateKeys={privateKeys}
               setPrivateKeys={setPrivateKeys}
+              groups={groups}
             />
           </div>
           <div>
@@ -108,6 +118,7 @@ export default function Home() {
               decidingBits={decidingBits}
               setDecidingBits={setDecidingBits}
               totalBits={totalBits}
+              groups={groups}
             />
           </div>
           <div>
@@ -120,6 +131,7 @@ export default function Home() {
               privateKeys={privateKeys}
               pubKeys={pubKeys}
               lastDecidingIter={lastDecidingIter}
+              groups={groups}
             />
           </div>
         </div>

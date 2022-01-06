@@ -142,15 +142,16 @@ const verifyStageOneNZIKProof = (proof, groups, publics) => {
   );
 };
 
-const init = async (
+const init = (
   statement,
   id,
   pubKeys,
   iter,
   privateCommitment,
-  privateKeys
+  privateKeys,
+  groups
 ) => {
-  const groups = await init_schnorr_group();
+  // const groups = await init_schnorr_group();
   const { g, q, p } = groups;
 
   const [a, b] = findPrivateCommitment(privateCommitment, iter);
@@ -165,7 +166,7 @@ const init = async (
 
   const X = pow(g, x, p);
   const R = pow(g, r, p);
-  const y = await compute_schnorr(pubKeys, iter, id, p);
+  const y = compute_schnorr(pubKeys, iter, id, p);
   const Y = pow(y, x, p);
   let M = 0n;
   if (statement === 0n) M = pow(Y, x, p);
@@ -174,16 +175,17 @@ const init = async (
   const secrets = new private_keys(a, b, x, r);
   const publics = new public_keys(A, B, X, R, L, Y, M);
 
-  return [groups, secrets, publics];
+  return [secrets, publics];
 };
 
-const generateStageOneNIZKProof = async ({
+const generateStageOneNIZKProof = ({
   statement,
   id,
   pubKeys,
   iter,
   privateCommitment,
   privateKeys,
+  groups
 }) => {
   /*
       Generate proof of well-formedness of stageone.
@@ -198,13 +200,14 @@ const generateStageOneNIZKProof = async ({
           publics: public parameters
     */
 
-  const [groups, secrets, publics] = await init(
+  const [secrets, publics] =  init(
     statement,
     id,
     pubKeys,
     iter,
     privateCommitment,
-    privateKeys
+    privateKeys,
+    groups
   );
   const proof = new stageOneProof();
 
@@ -245,7 +248,7 @@ const generateStageOneNIZKProof = async ({
     proof.response_21 = r21;
     proof.response_22 = r22;
 
-    return [Y, proof, publics, groups];
+    return [Y, proof, publics];
   } else if (statement === 1n) {
     const r11 = randrange(1n, q);
     const r12 = randrange(1n, q);
@@ -279,7 +282,7 @@ const generateStageOneNIZKProof = async ({
     proof.response_21 = r21 - x * ch2;
     proof.response_22 = r22 - a * ch2;
 
-    return [R, proof, publics, groups];
+    return [R, proof, publics];
   }
 };
 

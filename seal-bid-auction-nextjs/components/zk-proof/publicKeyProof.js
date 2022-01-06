@@ -67,8 +67,8 @@ const verifyPublicKeyNIZKProof = (proof, groups, publics) => {
   return verify_x() && verify_r();
 };
 
-const init = async () => {
-  const groups = await init_schnorr_group();
+const init = (groups) => {
+  // const groups = await init_schnorr_group();
   const { g, q, p } = groups;
 
   const x = randrange(1n, q);
@@ -80,10 +80,10 @@ const init = async () => {
   const secrets = new private_keys(x, r);
   const publics = new public_keys(X, R);
 
-  return [groups, secrets, publics];
+  return [secrets, publics];
 };
 
-const generatePublicKeyNIZKProof = async (id) => {
+const generatePublicKeyNIZKProof = (id, groups) => {
   /*
       Generate proof of knowledge of private key
       ----
@@ -96,7 +96,7 @@ const generatePublicKeyNIZKProof = async (id) => {
           groups: groups parameters
           publics: public parameters
     */
-  const [groups, secrets, publics] = await init();
+  const [secrets, publics] = init(groups);
   const proof = new publicKeyNIZKProof();
   const { g, q, p } = groups;
   const { x, r } = secrets;

@@ -88,8 +88,8 @@ const verifyCommitmentNIZKProof = (proof, groups, publics) => {
   return verify_1() && verify_2() && verify_3() && verify_4();
 };
 
-const init = async (statement) => {
-  const groups = await init_schnorr_group();
+const init = (statement, groups) => {
+  // const groups = await init_schnorr_group();
   const { g, q, p } = groups;
   const a = randrange(1n, q);
   const b = randrange(1n, q);
@@ -102,10 +102,10 @@ const init = async (statement) => {
   const secrets = new private_keys(a, b);
   const publics = new public_keys(A, B, L);
 
-  return [groups, secrets, publics];
+  return [secrets, publics];
 };
 
-const generateCommitmentNIZKProof = async (statement, id) => {
+const generateCommitmentNIZKProof = (statement, id, groups) => {
   /*
       Generate proof of well-formedness of commitment.
       ----
@@ -118,7 +118,7 @@ const generateCommitmentNIZKProof = async (statement, id) => {
           groups: groups parameters
           publics: public parameters
     */
-  const [groups, secrets, publics] = await init(statement);
+  const [secrets, publics] = init(statement, groups);
   const proof = new commitmentNIZKProof();
   const { g, q, p } = groups;
   const { a, b } = secrets;

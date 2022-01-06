@@ -18,7 +18,7 @@ const DectoBinary = ({ price, totalBits }) => {
   return bin_val;
 };
 
-const commitPrice = async ({ bid_price, id, bin_price }) => {
+const commitPrice =  ({  id, bin_price, groups }) => {
   /*
     Compute the commitment of submitted bid and zk-proof, then
     submited to public bulletin.
@@ -36,9 +36,9 @@ const commitPrice = async ({ bid_price, id, bin_price }) => {
     let statement = parseInt(bit);
     // TODO: Put groups to global variables
     let [epsilon_proof, epsilon_publics, commitment_secret] =
-      await generateCommitmentNIZKProof(BigInt(statement), BigInt(id));
+      generateCommitmentNIZKProof(BigInt(statement), BigInt(id), groups);
     // let [pubkey_proof, pubkey_publics, prikey_secrets] = await generatePublicKeyNIZKProof(BigInt(id))
-    const groups = await init_schnorr_group();
+    // const groups = await init_schnorr_group();
 
     // optional
     verifyCommitmentNIZKProof(epsilon_proof, groups, epsilon_publics);
@@ -60,7 +60,6 @@ const commitPrice = async ({ bid_price, id, bin_price }) => {
 export default function Commitment({
   socket,
   id,
-  setIsCommitmentFinish,
   numOfParticipants,
   roundState,
   setRoundState,
@@ -70,6 +69,7 @@ export default function Commitment({
   privateCommitment,
   setPrivateCommitment,
   totalBits,
+  groups
 }) {
   const [isSubmittedCommitment, setIsSubmittedCommitment] = useState(false);
 
@@ -92,21 +92,19 @@ export default function Commitment({
     if (commitments.length === numOfParticipants) {
       // Finish all commitments
       setIsSubmittedCommitment(false);
-      setIsCommitmentFinish(true);
       setRoundState(1);
     }
   }, [commitments]);
 
-  const sendCommitment = async () => {
+  const sendCommitment = () => {
     const bin_price = DectoBinary({ price, totalBits });
     setBinPrice(bin_price);
 
-    const bid_price = price;
     // TODO: change to socketio id
-    const [proofs, commitment_secrets] = await commitPrice({
-      bid_price,
+    const [proofs, commitment_secrets] = commitPrice({
       id,
       bin_price,
+      groups
     });
 
     setPrivateCommitment([...commitment_secrets]);

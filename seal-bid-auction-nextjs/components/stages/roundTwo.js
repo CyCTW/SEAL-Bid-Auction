@@ -14,7 +14,7 @@ import {
 import { bigIntToString } from "./utils";
 import { useState, useEffect } from "react";
 
-const execRoundTwo = async ({
+const execRoundTwo = ({
   iter,
   id,
   bit,
@@ -24,6 +24,7 @@ const execRoundTwo = async ({
   privateCommitment,
   privateKeys,
   decidingBits,
+  groups
 }) => {
   /*
     Compute the roundTwo of zk-proof, then
@@ -33,7 +34,7 @@ const execRoundTwo = async ({
     round:
     id:
     */
-  const groups_ = await init_schnorr_group();
+  // const groups_ = await init_schnorr_group();
 
   let statement = 0;
   let d_bit = 0;
@@ -57,7 +58,7 @@ const execRoundTwo = async ({
       statement = 2;
     }
 
-    const [B, B_proof, B_publics, groups] = await generateStageTwoNIZKProof({
+    const [B, B_proof, B_publics] = generateStageTwoNIZKProof({
       statement: BigInt(statement),
       id: BigInt(id),
       pubKeys,
@@ -65,43 +66,43 @@ const execRoundTwo = async ({
       lastDecidingIter,
       privateCommitment,
       privateKeys,
+      groups
     });
 
     // Optional
-    verifyStageTwoNZIKProof(B_proof, groups_, B_publics);
+    verifyStageTwoNZIKProof(B_proof, groups, B_publics);
     B = B.toString();
     bigIntToString(B_publics);
     bigIntToString(B_proof);
-    bigIntToString(groups);
-    return [{ B, B_publics, B_proof, iter, id, groups }, d_bit];
+    return [{ B, B_publics, B_proof, iter, id }, d_bit];
   } else {
     d_bit = bit;
     statement = bit;
-    const [B, B_proof, B_publics, groups] = await generateStageOneNIZKProof({
+    const [B, B_proof, B_publics] = generateStageOneNIZKProof({
       statement: BigInt(statement),
       id: BigInt(id),
       pubKeys,
       iter,
       privateCommitment,
       privateKeys,
+      groups
     });
     // Optional
-    verifyStageOneNZIKProof(B_proof, groups_, B_publics);
+    verifyStageOneNZIKProof(B_proof, groups, B_publics);
 
     B = B.toString();
     bigIntToString(B_publics);
     bigIntToString(B_proof);
-    bigIntToString(groups);
-    return [{ B, B_publics, B_proof, iter, id, groups }, d_bit];
+    return [{ B, B_publics, B_proof, iter, id }, d_bit];
   }
 };
 
-const computeCurrentBitPrice = (roundTwoProofs, iter) => {
+const computeCurrentBitPrice = ({roundTwoProofs, iter, groups}) => {
   let T = 1n;
   for (let roundTwoProof of roundTwoProofs) {
     if (roundTwoProof.iter == iter) {
       T *= BigInt(roundTwoProof.B);
-      T %= BigInt(roundTwoProof.groups.p);
+      T %= BigInt(groups.p);
     }
   }
   return T === 1n ? 0 : 1;
@@ -128,6 +129,7 @@ export default function RoundTwo({
   decidingBits,
   setDecidingBits,
   totalBits,
+  groups
 }) {
   const [roundTwoProofs, setRoundTwoProofs] = useState([]);
   const [isSubmittedRoundTwo, setIsSubmittedRoundTwo] = useState(false);
@@ -145,7 +147,7 @@ export default function RoundTwo({
   useEffect(() => {
     if (roundTwoProofs.length === iter * numOfParticipants) {
       // Finish one iteration
-      const bit = computeCurrentBitPrice(roundTwoProofs, iter);
+      const bit = computeCurrentBitPrice({roundTwoProofs, iter, groups});
 
       setCurrentBinPrice(currentBinPrice + bit.toString());
       if (bit === 1) {
@@ -162,12 +164,12 @@ export default function RoundTwo({
         setRoundState(1);
       }
     }
-  }, [roundTwoProofs]);
+  }, [roundTwoProofs, groups]);
 
-  const sendRoundTwoProof = async () => {
+  const sendRoundTwoProof =  () => {
     // TODO: change to socketio id
     const bit = parseInt(binPrice[iter - 1]);
-    const [roundTwoProof, d_bit] = await execRoundTwo({
+    const [roundTwoProof, d_bit] = execRoundTwo({
       iter,
       id,
       bit,
@@ -178,6 +180,7 @@ export default function RoundTwo({
       privateKeys,
       decidingBits,
       setDecidingBits,
+      groups
     });
     socket.emit("round2", JSON.stringify(roundTwoProof));
     setDecidingBits([...decidingBits, { iter, d_bit }]);

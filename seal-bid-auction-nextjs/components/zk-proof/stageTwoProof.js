@@ -239,7 +239,7 @@ const verifyStageTwoNZIKProof = (proof, groups, publics) => {
   );
 };
 
-const init = async ({
+const init = ({
   statement,
   id,
   pubKeys,
@@ -247,8 +247,9 @@ const init = async ({
   lastDecidingIter,
   privateCommitment,
   privateKeys,
+  groups
 }) => {
-  const groups = await init_schnorr_group();
+  // const groups = await init_schnorr_group();
   const { g, q, p } = groups;
 
   const [a, b] = findPrivateCommitment(privateCommitment, iter);
@@ -262,8 +263,8 @@ const init = async ({
 
   const X_ = pow(g, x_, p);
   const R_ = pow(g, r_, p);
-  const y = await compute_schnorr(pubKeys, iter, id, p);
-  const y_ = await compute_schnorr(pubKeys, lastDecidingIter, id, p);
+  const y = compute_schnorr(pubKeys, iter, id, p);
+  const y_ = compute_schnorr(pubKeys, lastDecidingIter, id, p);
   const Y = pow(y, x, p);
   const Y_ = pow(y_, x_, p);
   let L = 0n,
@@ -290,10 +291,10 @@ const init = async ({
   // const groups = new group_parameters(g, q, p);
   const secrets = new private_keys(a, b, x, r, x_, r_);
   const publics = new public_keys(A, B, X, R, X_, R_, L, Y, Y_, M, M_);
-  return [groups, secrets, publics];
+  return [secrets, publics];
 };
 
-const generateStageTwoNIZKProof = async ({
+const generateStageTwoNIZKProof = ({
   statement,
   id,
   pubKeys,
@@ -301,6 +302,7 @@ const generateStageTwoNIZKProof = async ({
   lastDecidingIter,
   privateCommitment,
   privateKeys,
+  groups
 }) => {
   /*
       Generate proof of well-formedness of stagetwo.
@@ -314,7 +316,7 @@ const generateStageTwoNIZKProof = async ({
           groups: groups parameters
           publics: public parameters
     */
-  const [groups, secrets, publics] = await init({
+  const [secrets, publics] = init({
     statement,
     id,
     pubKeys,
@@ -322,6 +324,7 @@ const generateStageTwoNIZKProof = async ({
     lastDecidingIter,
     privateCommitment,
     privateKeys,
+    groups
   });
 
   const proof = new stageTwoProof();
@@ -383,7 +386,7 @@ const generateStageTwoNIZKProof = async ({
     proof.response_31 = r31;
     proof.response_32 = r32;
 
-    return [R, proof, publics, groups];
+    return [R, proof, publics];
   } else if (statement === 1n) {
     const r11 = randrange(1n, q);
     const r12 = randrange(1n, q);
@@ -437,7 +440,7 @@ const generateStageTwoNIZKProof = async ({
     proof.response_31 = r31;
     proof.response_32 = r32;
 
-    return [Y, proof, publics, groups];
+    return [Y, proof, publics];
   } else if (statement === 2n) {
     const r11 = randrange(1n, q);
     const r12 = randrange(1n, q);
@@ -491,7 +494,7 @@ const generateStageTwoNIZKProof = async ({
     proof.response_31 = r31 - x * ch3;
     proof.response_32 = r32 - x_ * ch3;
 
-    return [Y, proof, publics, groups];
+    return [Y, proof, publics];
   }
 };
 
