@@ -2,9 +2,9 @@ import React from 'react'
 import { Grid } from 'semantic-ui-react';
 
 
-const Voter = () => (
+const Voter = ({isSubmitted}) => (
   <Grid.Column>
-      <button class="circular ui green icon button"></button>
+      <button className={isSubmitted ? "circular ui green icon button":"circular ui gray icon button"}></button>
   </Grid.Column>
   
 )

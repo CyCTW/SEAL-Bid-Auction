@@ -8,8 +8,8 @@ const button_style = {
 
 const NavBar = () => {
     return (  
-        <div class="ui stackable menu">
-            <div class="item">
+        <div className="ui stackable menu">
+            <div className="item">
                 <input type="image" src={require("./img/Logo.png")} style={button_style} onClick={() => window.location = '/'}/>
             </div>
         </div>

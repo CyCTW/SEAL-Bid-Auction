@@ -10,14 +10,17 @@ const imgStyle ={
   height: '25vh',
 }
 
-const Card = () => (
+const Card = ({name, img, expired_date}) => (
   <Segment style={cardStyle}>
     <Header>
       <Image src={require("./img/img.png")} style={imgStyle} rounded />
     </Header>
+    <h2>{name}</h2>
+    <p>Countdown: {expired_date}</p>
     <Segment.Inline>
-      <button class="ui primary button" onClick={() => window.location = '/objectpage'}>Join</button>
-      <button class="ui button">View</button>
+      {/* <button class="ui primary button" onClick={() => window.location = '/objectpage'}>Join</button> */}
+      <button className="ui primary button">Join</button>
+      <button className="ui button">View</button>
     </Segment.Inline>
   </Segment>
 )

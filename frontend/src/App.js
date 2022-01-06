@@ -3,28 +3,39 @@ import React from "react";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import Home from "./component/Home";
 import ObjectPage from "./component/ObjectPage";
-import Auction from "./component/Auction";
 import NavBar from "./component/Navbar";
+import { useState, useEffect } from "react";
+import { getAuctions } from "./utils";
+import Auction from './pages/Auction'
 
 function App() {
+  const [auctions, setAuctions] = useState(null)
+
+  useEffect(() => {
+    getAuctions().then(
+      ({data}) => {
+        setAuctions(data)
+        console.log(data)
+      }
+    ).catch((err) => {
+      console.log(err)
+    })
+  }, [])
+  
   return (
-    <div className="App">
-      <NavBar />
       <Router>
+        <NavBar />
+
         <Switch>
-          <Route exact path="/">
-            <Home />
-          </Route>
-          <Route exact path="/auction">
+          <Route path="/:auctionId">
             <Auction />
           </Route>
-          <Route exact path="/objectpage">
-            <ObjectPage />
+          <Route path="/">
+            {auctions && <Home auctions={auctions}/>}
           </Route>
         </Switch>
       </Router>
-    </div>
-  );
+  )
 }
 
 export default App;

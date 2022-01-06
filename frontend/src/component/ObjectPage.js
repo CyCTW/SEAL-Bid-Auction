@@ -26,9 +26,9 @@ const bidStyle = {
   gridTemplateColumns: '84% 14%',
 }
 
-const ObjectPage = () => (
-  <div class="container">
-    <div class="row" style={mainStyle}>
+const ObjectPage = ({sendCommitment, setPrice, isSubmittedCommitment}) => (
+  <div className="container">
+    <div className="row" style={mainStyle}>
       <div style={leftStyle}>
         <input type="image" style={button_style} src={require("./img/grabber_1.jpg")} onClick={() => document.getElementById("big_image").src = require("./img/grabber_1.jpg")}/>
         <input type="image" style={button_style} src={require("./img/grabber_2.jpg")} onClick={() => document.getElementById("big_image").src = require("./img/grabber_1.jpg")}/>
@@ -52,16 +52,16 @@ const ObjectPage = () => (
           <p align="left" id="text">The Pengo 4K HDMI Grabber is designed to support a 4K UHD Video input and capture audio/video at 1080p 60fps via USB. Transferring audio/video between the grabber and your PC/NB via USB easily enables streamers to capture each sound and movement. Using the Pengo 4K HDMI Grabber will allow a stable video capture in FHD at 60 fps without affecting the performance of your computer.</p>
         </div>
       </div>
-      <div class="ui segment">
+      <div className="ui segment">
         <p>Recommendations</p>
       </div>
     </div>
-    <div class="row" style={bidStyle}>
-      <div class="ui action input">
-        <input type="text" placeholder='Please enter your bid price.'/>
-        <button class="ui large button" onClick={() => window.location = '/auction'}>Bid!</button>
+    <div className="row" style={bidStyle}>
+      <div className="ui action input">
+        <input type="text" placeholder='Please enter your bid price.' onChange={(e) => setPrice(e.target.value)}/>
+        <button className={isSubmittedCommitment ? "ui large disabled button": "ui large button"} onClick={sendCommitment}>Bid!</button>
       </div>
-      <button class="ui large button">View</button>
+      <button className="ui large button">View</button>
     </div>
   </div>
 );

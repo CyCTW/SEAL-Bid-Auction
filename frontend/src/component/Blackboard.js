@@ -1,7 +1,7 @@
 import React from 'react'
 
 const Blackboard = () => (
-    <div class="ui inverted segment">
+    <div className="ui inverted segment">
         <h3>Black Board</h3>
     </div>
 )
