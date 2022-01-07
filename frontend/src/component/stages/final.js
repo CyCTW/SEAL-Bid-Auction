@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import AuctionBoard from "../AuctionBoard";
 import {
   checkDiscreteLog,
   findPrivateKeys,
@@ -15,7 +16,8 @@ export default function Final({
   lastDecidingIter,
   privateKeys,
   pubKeys,
-  groups
+  groups,
+  participantsIds
 }) {
   const [isWinner, setIsWinner] = useState(null);
   const [winnerProof, setWinnerProof] = useState(null);
@@ -51,6 +53,18 @@ export default function Final({
     <div>
       {roundState === 4 ? (
         <div>
+          <AuctionBoard
+            binPrice={binPrice}
+            currentBinPrice={currentBinPrice}
+            // sendProofs={sendPubkeys}
+            isSubmitted={true}
+            participantsIds={participantsIds}
+            proofs={participantsIds}
+            // iter={iter}
+            id={id}
+            round={3}
+            isWinner={isWinner}
+          />
           <h1>Auction end...</h1>
           {isWinner && isWinner ? (
             <h2> You are the winner!</h2>

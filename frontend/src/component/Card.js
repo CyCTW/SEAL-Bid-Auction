@@ -16,7 +16,7 @@ const Card = ({name, img, expired_date}) => (
       <Image src={require("./img/img.png")} style={imgStyle} rounded />
     </Header>
     <h2>{name}</h2>
-    <p>Countdown: {expired_date}</p>
+    <p>Expired Date: {expired_date}</p>
     <Segment.Inline>
       {/* <button class="ui primary button" onClick={() => window.location = '/objectpage'}>Join</button> */}
       <button className="ui primary button">Join</button>

@@ -151,7 +151,7 @@ export default function RoundTwo({
     });
   }, [socket]);
   useEffect(() => {
-    if (roundTwoProofs.length === iter * numOfParticipants) {
+    if (roundTwoProofs.length !== 0 && roundTwoProofs.length === iter * numOfParticipants) {
       // Finish one iteration
       const bit = computeCurrentBitPrice({ roundTwoProofs, iter, groups });
 
@@ -205,25 +205,10 @@ export default function RoundTwo({
             proofs={roundTwoProofs}
             iter={iter}
             id={id}
+            round={2}
           />
-          {isSubmittedRoundTwo ? (
-            <div>You have submitted round two... wait for others</div>
-          ) : (
-            <div>
-              <h1> Now is Round 2, iteration: {iter}..... </h1>
-            </div>
-          )}
-          <input
-            type="button"
-            value="Send roundTwo"
-            onClick={sendRoundTwoProof}
-          />{" "}
-        </div>
-      ) : isJunction ? (
-        <div>Enter junction</div>
-      ) : (
-        <div></div>
-      )}
+        </div>) : <div></div>
+      }
     </div>
   );
 }

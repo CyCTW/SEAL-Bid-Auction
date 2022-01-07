@@ -16,7 +16,7 @@ export default function Auction() {
   const [id, setId] = useState(0);
   const [pubKeys, setPubKeys] = useState([]);
 
-  const [numOfParticipants, setNumOfParticipants] = useState(-1);
+  const [numOfParticipants, setNumOfParticipants] = useState(0);
   const [participantsIds, setParticipantsIds] = useState([])
 
   // States about price
@@ -64,6 +64,7 @@ export default function Auction() {
   useEffect(() => {
     getAuction(auctionId).then(
       ({data}) => {
+        // data.expired_date.setHours(data.expired_date.getHours() + 8)
         console.log("data: ", data)
         setAuctionDetail(data)
       }
@@ -71,7 +72,8 @@ export default function Auction() {
       console.log(err)
     })
   }, [auctionId])
-
+  console.log("Num: ", numOfParticipants)
+  console.log("roundstate: ", roundState)
   return (
     <div>
       {socket && auctionDetail ? (
@@ -87,6 +89,7 @@ export default function Auction() {
               setRoundState={setRoundState}
               price={price}
               setPrice={setPrice}
+              binPrice={binPrice}
               setBinPrice={setBinPrice}
               privateCommitment={privateCommitment}
               setPrivateCommitment={setPrivateCommitment}
@@ -153,6 +156,7 @@ export default function Auction() {
               pubKeys={pubKeys}
               lastDecidingIter={lastDecidingIter}
               groups={groups}
+              participantsIds={participantsIds}
             />
           </div>
         </div>

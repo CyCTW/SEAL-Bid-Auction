@@ -14,6 +14,12 @@ function App() {
   useEffect(() => {
     getAuctions().then(
       ({data}) => {
+        for(let i=0; i<data.length; i++) {
+          let d = data[i]
+          const expired_date = new Date(d.expired_date)
+          // expired_date.setHours(expired_date.getHours() + 8)
+          data[i].expired_date = expired_date.toString()
+        }
         setAuctions(data)
         console.log(data)
       }

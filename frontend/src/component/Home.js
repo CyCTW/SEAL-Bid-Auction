@@ -1,10 +1,12 @@
 import React from "react";
 import { Link } from "react-router-dom/cjs/react-router-dom.min";
 import Card from "./Card";
+import NewAuctionModal from "./NewAuctionModal";
 
 const HomePage = ({auctions}) => {
   console.log("Auction", auctions)
   return (
+    <>
     <div className="container"> 
       <div className="row">
         <div className="column">
@@ -28,6 +30,8 @@ const HomePage = ({auctions}) => {
         </div>
       </div>
     </div>
+    <NewAuctionModal />
+  </>
   )
 };
 

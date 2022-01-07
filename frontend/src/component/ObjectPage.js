@@ -26,7 +26,7 @@ const bidStyle = {
   gridTemplateColumns: '84% 14%',
 }
 
-const ObjectPage = ({sendCommitment, setPrice, isSubmittedCommitment}) => (
+const ObjectPage = ({sendCommitment, viewCommitment, setPrice, isSubmittedCommitment, timeLeft, auctionDetail}) => (
   <div className="container">
     <div className="row" style={mainStyle}>
       <div style={leftStyle}>
@@ -39,21 +39,18 @@ const ObjectPage = ({sendCommitment, setPrice, isSubmittedCommitment}) => (
         <Image id="big_image" src={require("./img/grabber_1.jpg")} rounded />
       </div>
       <div>
-        <h1>4K HDMI Grabber</h1>
+        <h1>{auctionDetail.name}</h1>
         <div className="ui secondary pointing menu">
-          <a className="item" onClick={() => document.getElementById("text").innerHTML = "The Pengo 4K HDMI Grabber is designed to support a 4K UHD Video input and capture audio/video at 1080p 60fps via USB. Transferring audio/video between the grabber and your PC/NB via USB easily enables streamers to capture each sound and movement. Using the Pengo 4K HDMI Grabber will allow a stable video capture in FHD at 60 fps without affecting the performance of your computer."}>
+          <a className="item" onClick={() => document.getElementById("text").innerHTML = auctionDetail.description}>
             Description
-          </a>
-          <a className="item" onClick={() => document.getElementById("text").innerHTML = "Supports HDMI 2.0 and UHD resolution up to 4K at 60 frames per second."}>
-            Features
           </a>
         </div>
         <div className="ui basic segment">
-          <p align="left" id="text">The Pengo 4K HDMI Grabber is designed to support a 4K UHD Video input and capture audio/video at 1080p 60fps via USB. Transferring audio/video between the grabber and your PC/NB via USB easily enables streamers to capture each sound and movement. Using the Pengo 4K HDMI Grabber will allow a stable video capture in FHD at 60 fps without affecting the performance of your computer.</p>
+          <p align="left" id="text">{auctionDetail.description}</p>
         </div>
       </div>
       <div className="ui segment">
-        <p>Recommendations</p>
+        <p>{auctionDetail && `Remain: ${timeLeft.days} Days ${timeLeft.hours} Hours ${timeLeft.minutes} min ${timeLeft.seconds} sec`}</p>
       </div>
     </div>
     <div className="row" style={bidStyle}>
@@ -61,7 +58,7 @@ const ObjectPage = ({sendCommitment, setPrice, isSubmittedCommitment}) => (
         <input type="text" placeholder='Please enter your bid price.' onChange={(e) => setPrice(e.target.value)}/>
         <button className={isSubmittedCommitment ? "ui large disabled button": "ui large button"} onClick={sendCommitment}>Bid!</button>
       </div>
-      <button className="ui large button">View</button>
+      <button className="ui large button" onClick={viewCommitment}>View</button>
     </div>
   </div>
 );

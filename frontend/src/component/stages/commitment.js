@@ -8,6 +8,7 @@ import { init_schnorr_group } from "../zk-proof/utils";
 import { useState, useEffect } from "react";
 import { bigIntToString } from "./utils";
 import ObjectPage from "../ObjectPage";
+import AuctionBoard from "../AuctionBoard";
 
 const DectoBinary = ({ price, totalBits }) => {
   let bin_val = (price >>> 0).toString(2);
@@ -66,6 +67,7 @@ export default function Commitment({
   setRoundState,
   price,
   setPrice,
+  binPrice,
   setBinPrice,
   privateCommitment,
   setPrivateCommitment,
@@ -94,22 +96,29 @@ export default function Commitment({
         const newIds = [...prevIds, commitment.id];
         return newIds;
       });
+      console.log("commitment length 1: ", commitments.length)
+
+      setNumOfParticipants((prev) => {return prev+1});
+      console.log("NumofParcipants 1: ", numOfParticipants)
+
     });
   }, [socket]);
+  console.log("NumofParcipants 2: ", numOfParticipants)
+  console.log("commitment length 2: ", commitments.length)
 
-  useEffect(() => {
-    if (commitments.length === numOfParticipants) {
-      // Finish all commitments
-      setIsSubmittedCommitment(false);
-      setRoundState(1);
-    }
-  }, [commitments]);
-  console.log("detrail", auctionDetail);
+  // useEffect(() => {
+  //   if (commitments.length === numOfParticipants) {
+  //     // Finish all commitments
+  //     setIsSubmittedCommitment(false);
+  //     setRoundState(1);
+  //   }
+  // }, [commitments]);
+  console.log("detail", auctionDetail);
 
   const calculateTimeLeft = () => {
     // calculate difference
-    console.log("expire: ", auctionDetail);
-    console.log("expire: ", typeof auctionDetail.expired_date);
+    // console.log("expire: ", auctionDetail);
+    // console.log("expire: ", typeof auctionDetail.expired_date);
     const difference = new Date(auctionDetail.expired_date) - new Date();
     // const difference = 5000
     let timeLeft = {};
@@ -121,9 +130,9 @@ export default function Commitment({
         seconds: Math.floor((difference / 1000) % 60),
       };
     }
-    if (timeLeft.seconds < 10) {
-      return {};
-    }
+    // if (timeLeft.seconds < 10) {
+    //   return {};
+    // }
     return timeLeft;
   };
 
@@ -133,18 +142,17 @@ export default function Commitment({
     minutes: 0,
     seconds: 0,
   });
-  console.log(timeLeft);
-  console.log(timeLeft.days);
+  // console.log(timeLeft);
+  // console.log(timeLeft.days);
   useEffect(() => {
     if (auctionDetail) {
       const timer = setTimeout(() => {
         setTimeLeft(calculateTimeLeft());
       }, 1000);
-      console.log("timeleft: ", timeLeft);
+      // console.log("timeleft: ", timeLeft);
       if (Object.keys(timeLeft).length === 0) {
+        console.log("????????????????")
         clearTimeout(timer);
-        console.log("hihihihi");
-        setNumOfParticipants(commitments.length);
         setRoundState(1);
       }
     }
@@ -166,22 +174,41 @@ export default function Commitment({
     setIsSubmittedCommitment(true);
   };
 
+  const viewCommitment = () => {
+    setIsSubmittedCommitment(true);
+  }
+
   return (
     <div>
       {roundState === 0 ? (
+        !isSubmittedCommitment ?
         <div>
-          {auctionDetail && (
+          {auctionDetail && timeLeft && (
             <div>
-              Remain{" "}
-              {`${timeLeft.days}:${timeLeft.hours}:${timeLeft.minutes}:${timeLeft.seconds}`}
+              <ObjectPage
+                sendCommitment={sendCommitment}
+                viewCommitment={viewCommitment}
+                setPrice={setPrice}
+                isSubmittedCommitment={isSubmittedCommitment}
+                timeLeft={timeLeft}
+                auctionDetail={auctionDetail}
+              />
             </div>
           )}
-          <ObjectPage
-            sendCommitment={sendCommitment}
-            setPrice={setPrice}
-            isSubmittedCommitment={isSubmittedCommitment}
-          />
-        </div>
+          
+        </div> : 
+        <AuctionBoard
+          binPrice={binPrice}
+          // currentBinPrice={null}
+          // sendProofs={sendPubkeys}
+          isSubmitted={isSubmittedCommitment}
+          participantsIds={participantsIds}
+          proofs={commitments}
+          // iter={iter}
+          id={id}
+          round={0}
+          timeLeft={timeLeft}
+        />
       ) : (
         <div></div>
       )}

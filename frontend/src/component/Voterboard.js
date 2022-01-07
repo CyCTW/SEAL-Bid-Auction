@@ -11,23 +11,23 @@ const findProofs = (proofs, iter, id) => {
     return false
 }
 
-const VoterBoard = ({participantsIds, proofs, iter, id}) => {
-    console.log("Parti id: ", participantsIds)
-    console.log("Proofs: ", proofs)
-    console.log("Iter: ", iter)
+const VoterBoard = ({participantsIds, proofs, iter, id, isWinner}) => {
+    // console.log("Parti id: ", participantsIds)
+    // console.log("Proofs: ", proofs)
+    // console.log("Iter: ", iter)
 
     return (
     <div className="ui segment">
         <div className="header">
             <h5>Voters that commmits successfully</h5>
-            <h7>(Click to see its info on board.)</h7>
+            <h5>(Click to see its info on board.)</h5>
         </div>
         <div>
             <Grid columns='equal'>
                 {participantsIds.map((participantId) => {
                     if (participantId !== id) {
                         return (
-                        <Voter key={participantId} isSubmitted={findProofs(proofs, iter, participantId) }/>
+                        <Voter key={participantId} isWinner={isWinner} isSubmitted={findProofs(proofs, iter, participantId) }/>
                         )
                     }
                 })

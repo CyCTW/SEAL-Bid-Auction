@@ -62,7 +62,7 @@ export default function RoundOne({
   }, [socket]);
 
   useEffect(() => {
-    if (pubKeys.length === iter * numOfParticipants) {
+    if (pubKeys.length !== 0 && pubKeys.length === iter * numOfParticipants) {
       setIsSubmittedRoundOne(false);
 
       setRoundState(2);
@@ -89,6 +89,7 @@ export default function RoundOne({
             proofs={pubKeys}
             iter={iter}
             id={id}
+            round={1}
           />
           {/* {isSubmittedRoundOne ? (
             <div>You have submitted round one... wait for others</div>

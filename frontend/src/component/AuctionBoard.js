@@ -25,16 +25,47 @@ const boardStyle = {
   height: "60vh",
 };
 
-const AuctionBoard = ({ binPrice, currentBinPrice, sendProofs, isSubmitted, participantsIds, proofs, iter, id }) => (
+const AuctionBoard = ({
+  binPrice,
+  currentBinPrice,
+  sendProofs,
+  isSubmitted,
+  participantsIds,
+  proofs,
+  iter,
+  id,
+  round,
+  timeLeft,
+  isWinner,
+}) => (
   <div style={mainStyle}>
     <div style={leftStyle}>
-      <Blackboard style={boardStyle} />
+      <Blackboard
+        style={boardStyle}
+        round={round}
+        isSubmitted={isSubmitted}
+        iter={iter}
+        isWinner={isWinner}
+      />
       <Bid binPrice={binPrice} currentBinPrice={currentBinPrice} />
-      <button className={isSubmitted ?"ui teal disabled button" :"ui teal button"} onClick={sendProofs}>Send Proof</button>
+      {round > 0 && (
+        <button
+          className={isSubmitted ? "ui teal disabled button" : "ui teal button"}
+          onClick={sendProofs}
+        >
+          Send Proof
+        </button>
+      )}
     </div>
     <div style={rightStyle}>
-      <Voterboard participantsIds={participantsIds} proofs={proofs} iter={iter} id={id}/>
-      <Timer />
+      <Voterboard
+        participantsIds={participantsIds}
+        proofs={proofs}
+        iter={iter}
+        id={id}
+        isWinner={isWinner}
+      />
+      <Timer timeLeft={timeLeft} />
     </div>
   </div>
 );
