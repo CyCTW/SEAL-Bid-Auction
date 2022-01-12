@@ -4,6 +4,7 @@ import {
 } from "../zk-proof/publicKeyProof";
 import { init_schnorr_group } from "../zk-proof/utils";
 import { bigIntToString } from "./utils";
+import { sendRound1, getAuctionContract } from "../../utils";
 import { useState, useEffect } from "react";
 import AuctionBoard from "../AuctionBoard";
 
@@ -31,6 +32,7 @@ const execRoundOne = ({ iter, id, groups }) => {
 
 export default function RoundOne({
   id,
+  auctionId,
   pubKeys,
   setPubKeys,
   numOfParticipants,
@@ -48,8 +50,9 @@ export default function RoundOne({
   const [isSubmittedRoundOne, setIsSubmittedRoundOne] = useState(false);
 
   useEffect(() => {
-    socket.on("round1", (message) => {
-      const pubKey = JSON.parse(message);
+    let auctionContract = getAuctionContract(auctionId);
+    auctionContract.events.Round1Event((err, event) => {
+      const pubKey = JSON.parse(event.returnValues[1]);
 
       setPubKeys((prevPubkeys) => {
         const newPubkeys = [...prevPubkeys, pubKey];
@@ -57,8 +60,8 @@ export default function RoundOne({
 
         return newPubkeys;
       });
-    });
-  }, [socket]);
+    })
+  }, []);
 
   useEffect(() => {
     if (pubKeys.length !== 0 && pubKeys.length === iter * numOfParticipants) {
@@ -72,7 +75,8 @@ export default function RoundOne({
     // TODO: change to socketio id
     const [pubkey, privatekey] = execRoundOne({ iter, id, groups });
     setPrivateKeys([...privateKeys, privatekey]);
-    socket.emit("round1", JSON.stringify(pubkey));
+    sendRound1(auctionId, pubkey);
+    // socket.emit("round1", JSON.stringify(pubkey));
     setIsSubmittedRoundOne(true);
   };
   return (

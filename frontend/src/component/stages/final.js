@@ -5,9 +5,11 @@ import {
   findPrivateKeys,
   findPublicKeys,
 } from "../zk-proof/utils";
+import { sendWinnerClaim, getAuctionContract } from "../../utils";
 
 export default function Final({
   id,
+  auctionId,
   roundState,
   commitment,
   binPrice,
@@ -32,11 +34,13 @@ export default function Final({
     return result;
   };
   useEffect(() => {
-    socket.on("final", (message) => {
-      const winner_proof = JSON.parse(message);
+    let auctionContract = getAuctionContract(auctionId);
+    auctionContract.events.claimWinnerEvent((err, event) => {
+      console.log(event)
+      const winner_proof = JSON.parse(event.returnValues[1]);
       setWinnerProof(winner_proof);
     });
-  }, [socket]);
+  }, []);
 
   useEffect(() => {
     if (roundState === 4) {
@@ -44,7 +48,8 @@ export default function Final({
       if (binPrice === currentBinPrice) {
         setIsWinner(true);
         const [x, r] = findPrivateKeys(privateKeys, lastDecidingIter);
-        socket.emit("final", JSON.stringify({ id, x: x.toString() }));
+        sendWinnerClaim(auctionId, x)
+        // socket.emit("final", JSON.stringify({ id, x: x.toString() }));
       }
     }
   }, [roundState]);

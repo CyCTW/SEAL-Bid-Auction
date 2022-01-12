@@ -7,7 +7,7 @@ import auctionContractBuild from "./contracts/Auction.json"
 // const hostname = "http://localhost:3001";
 // const path = "api/auctions";
 
-const mainContractAddress = "0x5229630fECD8B195e4c585596e9a5509BaD60326";
+const mainContractAddress = "0x4e61758Dd564547f155A5aF3935A59E7fD939fdb";
 const mainContractABI = mainContractBuild['abi'];
 const auctionContractABI = auctionContractBuild['abi'];
 
@@ -49,7 +49,6 @@ export const addAuction = async (data) => {
     .send({
       'from': web3.eth.defaultAccount,
       'gas': 5000000,
-      'gasPrice': 5000000,
     })
   console.log(r);
   // const res = await axios.post(`${hostname}/${path}`, data);
@@ -69,8 +68,48 @@ export const joinAuction = async (auctionAddr, data) => {
     .send({
       'from': web3.eth.defaultAccount,
       'gas': 10000000,
-      'gasPrice': 10000000,
     })
 
   console.log(r);
 }
+
+export const sendRound1 = async (auctionAddr, data) => {
+  const auctionContract = getAuctionContract(auctionAddr);
+  let r = await auctionContract.methods.round1(JSON.stringify(data))
+    .send({
+      'from': web3.eth.defaultAccount,
+      'gas': 10000000,
+    })
+
+  console.log(r);
+}
+
+export const sendRound2 = async (auctionAddr, data) => {
+  const auctionContract = getAuctionContract(auctionAddr);
+  let r = await auctionContract.methods.round2(JSON.stringify(data))
+    .send({
+      'from': web3.eth.defaultAccount,
+      'gas': 10000000,
+    })
+
+  console.log(r);
+}
+
+export const sendWinnerClaim = async (auctionAddr, x) => {
+  console.log(x, x.toString(), JSON.stringify({
+    id: web3.eth.defaultAccount,
+    x: x.toString()
+  }));
+  const auctionContract = getAuctionContract(auctionAddr);
+  let r = await auctionContract.methods.claimWinner(JSON.stringify({
+    id: web3.eth.defaultAccount,
+    x: x.toString()
+  }))
+    .send({
+      'from': web3.eth.defaultAccount,
+      'gas': 1000000,
+    })
+
+  console.log(r);
+}
+

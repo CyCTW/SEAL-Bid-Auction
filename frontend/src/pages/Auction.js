@@ -16,7 +16,7 @@ export default function Auction() {
   const [id, setId] = useState(0);
   const [pubKeys, setPubKeys] = useState([]);
 
-  const [numOfParticipants, setNumOfParticipants] = useState(3);
+  const [numOfParticipants, setNumOfParticipants] = useState(2);
   const [participantsIds, setParticipantsIds] = useState([])
 
   // States about price
@@ -38,7 +38,7 @@ export default function Auction() {
   const [decidingBits, setDecidingBits] = useState([]);
 
   // Total padding bits
-  const totalBits = 4;
+  const totalBits = 1;
 
   /* 
     privateKeys = {
@@ -96,9 +96,10 @@ export default function Auction() {
               setParticipantsIds={setParticipantsIds}
             />
           </div>
-          {/* <div>
+          <div>
             <RoundOne
               id={id}
+              auctionId={auctionDetail['id']}
               pubKeys={pubKeys}
               setPubKeys={setPubKeys}
               roundState={roundState}
@@ -116,6 +117,7 @@ export default function Auction() {
           <div>
             <RoundTwo
               id={id}
+              auctionId={auctionDetail['id']}
               pubKeys={pubKeys}
               roundState={roundState}
               setRoundState={setRoundState}
@@ -141,6 +143,7 @@ export default function Auction() {
           <div>
             <Final
               id={id}
+              auctionId={auctionDetail['id']}
               roundState={roundState}
               binPrice={binPrice}
               currentBinPrice={currentBinPrice}
@@ -150,7 +153,7 @@ export default function Auction() {
               groups={groups}
               participantsIds={participantsIds}
             />
-          </div> */}
+          </div>
         </div>
       ) : (
         <div>not connected</div>

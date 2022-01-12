@@ -14,6 +14,7 @@ import {
 import { bigIntToString } from "./utils";
 import { useState, useEffect } from "react";
 import AuctionBoard from "../AuctionBoard";
+import { sendRound2, getAuctionContract } from "../../utils";
 
 const execRoundTwo = ({
   iter,
@@ -115,6 +116,7 @@ const computeCurrentBitPrice = ({ roundTwoProofs, iter, groups }) => {
 
 export default function RoundTwo({
   id,
+  auctionId,
   pubKeys,
   numOfParticipants,
   iter,
@@ -140,15 +142,16 @@ export default function RoundTwo({
   const [isSubmittedRoundTwo, setIsSubmittedRoundTwo] = useState(false);
 
   useEffect(() => {
-    socket.on("round2", (message) => {
-      const roundTwoProof = JSON.parse(message);
+    let auctionContract = getAuctionContract(auctionId);
+    auctionContract.events.Round2Event((err, event) => {
+      const roundTwoProof = JSON.parse(event.returnValues[1]);
       setRoundTwoProofs((prevRoundTwoProofs) => {
         const newProofs = [...prevRoundTwoProofs, roundTwoProof];
 
         return newProofs;
       });
     });
-  }, [socket]);
+  }, []);
   useEffect(() => {
     if (roundTwoProofs.length !== 0 && roundTwoProofs.length === iter * numOfParticipants) {
       // Finish one iteration
@@ -187,7 +190,8 @@ export default function RoundTwo({
       setDecidingBits,
       groups
     });
-    socket.emit("round2", JSON.stringify(roundTwoProof));
+    sendRound2(auctionId, roundTwoProof);
+    // socket.emit("round2", JSON.stringify(roundTwoProof));
     setDecidingBits([...decidingBits, { iter, d_bit }]);
     setIsSubmittedRoundTwo(true);
   };
