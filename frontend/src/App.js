@@ -9,7 +9,7 @@ import { getAuctions, web3 } from "./utils";
 import Auction from './pages/Auction'
 
 function App() {
-  const [auctions, setAuctions] = useState(null)
+  const [auctionsId, setAuctionsId] = useState(null)
   const [account, setAccount] = useState(null)
 
   useEffect(() => {
@@ -29,7 +29,7 @@ function App() {
         //   // expired_date.setHours(expired_date.getHours() + 8)
         //   // data[i].expired_date = expired_date.toString()
         // }
-        setAuctions(data);
+        setAuctionsId(data);
       } catch (err) {
         console.log(err);
       }
@@ -46,7 +46,7 @@ function App() {
           <Auction />
         </Route>
         <Route path="/">
-          {auctions && <Home auctions={auctions} />}
+          {auctionsId && <Home auctionsId={auctionsId} />}
         </Route>
       </Switch>
     </Router>

@@ -2,12 +2,14 @@ import axios from "axios";
 import { init_schnorr_group } from "./component/zk-proof/utils"
 
 import mainContractBuild from "./contracts/Main.json"
+import auctionContractBuild from "./contracts/Auction.json"
 
 // const hostname = "http://localhost:3001";
 // const path = "api/auctions";
 
-const mainContractAddress = "0x3d508e6ea8AEff06d2c8740Ab12438023d8C5D37"
-const mainContractABI = mainContractBuild['abi']
+const mainContractAddress = "0x3d508e6ea8AEff06d2c8740Ab12438023d8C5D37";
+const mainContractABI = mainContractBuild['abi'];
+const auctionContractABI = auctionContractBuild['abi'];
 
 const web3 = new Web3("ws://localhost:7545");
 const mainContract = new web3.eth.Contract(mainContractABI, mainContractAddress);
@@ -20,9 +22,18 @@ export const getAuctions = async () => {
   return r;
 };
 
-export const getAuction = async (auctionID) => {
-  const response = await axios.get(`${hostname}/${path}/${auctionID}`);
-  return response;
+export const getAuction = async (auctionAddr) => {
+  const auctionContract = new web3.eth.Contract(auctionContractABI, auctionAddr);
+  let auctionName = await auctionContract.methods.auctionName().call();
+  let auctionDesc = await auctionContract.methods.auctionDesc().call();
+  let commitDeadline = await auctionContract.methods.commitDeadline().call();
+  let expiredDate = new Date(1000 * commitDeadline)
+  return {
+    id: auctionAddr,
+    name: auctionName,
+    desc: auctionDesc,
+    expired_date: expiredDate,
+  };
 };
 
 export const addAuction = async (data) => {
