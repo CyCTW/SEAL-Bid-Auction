@@ -114,7 +114,6 @@ const computeCurrentBitPrice = ({ roundTwoProofs, iter, groups }) => {
 };
 
 export default function RoundTwo({
-  socket,
   id,
   pubKeys,
   numOfParticipants,

@@ -7,7 +7,7 @@ import auctionContractBuild from "./contracts/Auction.json"
 // const hostname = "http://localhost:3001";
 // const path = "api/auctions";
 
-const mainContractAddress = "0x3d508e6ea8AEff06d2c8740Ab12438023d8C5D37";
+const mainContractAddress = "0x5229630fECD8B195e4c585596e9a5509BaD60326";
 const mainContractABI = mainContractBuild['abi'];
 const auctionContractABI = auctionContractBuild['abi'];
 
@@ -55,3 +55,22 @@ export const addAuction = async (data) => {
   // const res = await axios.post(`${hostname}/${path}`, data);
   // return res;
 };
+
+export const getAuctionContract = (auctionAddr) => {
+  return new web3.eth.Contract(auctionContractABI, auctionAddr);
+}
+
+export const joinAuction = async (auctionAddr, data) => {
+  const auctionContract = getAuctionContract(auctionAddr);
+  let r = await auctionContract.methods.joinAuction(JSON.stringify({
+    id: web3.eth.defaultAccount,
+    commitment: data
+  }))
+    .send({
+      'from': web3.eth.defaultAccount,
+      'gas': 10000000,
+      'gasPrice': 10000000,
+    })
+
+  console.log(r);
+}

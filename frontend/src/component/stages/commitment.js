@@ -7,6 +7,7 @@ import { init_schnorr_group } from "../zk-proof/utils";
 
 import { useState, useEffect } from "react";
 import { bigIntToString } from "./utils";
+import { joinAuction, getAuctionContract } from "../../utils";
 import ObjectPage from "../ObjectPage";
 import AuctionBoard from "../AuctionBoard";
 
@@ -60,7 +61,6 @@ const commitPrice = ({ id, bin_price, groups }) => {
 };
 
 export default function Commitment({
-  socket,
   id,
   numOfParticipants,
   roundState,
@@ -83,8 +83,10 @@ export default function Commitment({
   const [commitments, setCommitments] = useState([]);
 
   useEffect(() => {
-    socket.on("commitment", (message) => {
-      const commitment = JSON.parse(message);
+    let auctionContract = getAuctionContract(auctionDetail['id']);
+    auctionContract.events.JoinAuctionEvent((err, event) => {
+      const commitment = JSON.parse(event.returnValues[1]);
+      console.log(commitment);
 
       setCommitments((prevCommitment) => {
         const newCommitment = [...prevCommitment, commitment];
@@ -98,28 +100,27 @@ export default function Commitment({
       });
       console.log("commitment length 1: ", commitments.length)
 
-      setNumOfParticipants((prev) => {return prev+1});
-      console.log("NumofParcipants 1: ", numOfParticipants)
+      // setNumOfParticipants((prev) => {return prev+1});
+      // console.log("NumofParcipants 1: ", numOfParticipants)
+    })
+  }, [auctionDetail]);
+  // console.log("NumofParcipants 2: ", numOfParticipants)
+  // console.log("commitment length 2: ", commitments.length)
 
-    });
-  }, [socket]);
-  console.log("NumofParcipants 2: ", numOfParticipants)
-  console.log("commitment length 2: ", commitments.length)
-
-  // useEffect(() => {
-  //   if (commitments.length === numOfParticipants) {
-  //     // Finish all commitments
-  //     setIsSubmittedCommitment(false);
-  //     setRoundState(1);
-  //   }
-  // }, [commitments]);
-  console.log("detail", auctionDetail);
+  useEffect(() => {
+    if (commitments.length === numOfParticipants) {
+      // Finish all commitments
+      setIsSubmittedCommitment(false);
+      setRoundState(1);
+    }
+  }, [commitments]);
+  // console.log("detail", auctionDetail);
 
   const calculateTimeLeft = () => {
     // calculate difference
     // console.log("expire: ", auctionDetail);
     // console.log("expire: ", typeof auctionDetail.expired_date);
-    const difference = new Date(auctionDetail.expired_date) - new Date();
+    const difference = auctionDetail.expired_date - new Date();
     // const difference = 5000
     let timeLeft = {};
     if (difference > 0) {
@@ -168,9 +169,11 @@ export default function Commitment({
       groups,
     });
 
+    console.log(proofs, commitment_secrets)
     setPrivateCommitment([...commitment_secrets]);
+    joinAuction(auctionDetail['id'], proofs);
     // setPrivateKeys({...privateKeys, ...secrets})
-    socket.emit("commitment", JSON.stringify({ id, commitment: proofs }));
+    // socket.emit("commitment", JSON.stringify({ id, commitment: proofs }));
     setIsSubmittedCommitment(true);
   };
 

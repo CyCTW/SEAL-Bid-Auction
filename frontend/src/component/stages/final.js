@@ -7,7 +7,6 @@ import {
 } from "../zk-proof/utils";
 
 export default function Final({
-  socket,
   id,
   roundState,
   commitment,

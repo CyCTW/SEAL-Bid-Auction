@@ -6,17 +6,17 @@ import { init_schnorr_group } from "../component/zk-proof/utils";
 import RoundOne from "../component/stages/roundOne";
 import RoundTwo from "../component/stages/roundTwo";
 import Final from "../component/stages/final";
-import { getAuction } from "../utils";
+import { getAuction, web3 } from "../utils";
 import { useParams } from "react-router-dom/cjs/react-router-dom.min";
 
 export default function Auction() {
   let { auctionId } = useParams();
 
-  const [socket, setSocket] = useState(null);
+  // const [socket, setSocket] = useState(null);
   const [id, setId] = useState(0);
   const [pubKeys, setPubKeys] = useState([]);
 
-  const [numOfParticipants, setNumOfParticipants] = useState(0);
+  const [numOfParticipants, setNumOfParticipants] = useState(3);
   const [participantsIds, setParticipantsIds] = useState([])
 
   // States about price
@@ -47,12 +47,8 @@ export default function Auction() {
     */
 
   useEffect(() => {
-    //連線成功在 console 中打印訊息
-    setSocket(io("http://localhost:3001"));
-
-    console.log("success connect!");
-    setId(Math.floor(Math.random() * 100));
-  }, [setSocket]);
+    setId(web3.eth.defaultAccount);
+  }, [web3.eth.defaultAccount]);
 
   useEffect(async () => {
     const groups = await init_schnorr_group()
@@ -63,7 +59,7 @@ export default function Auction() {
   const [auctionDetail, setAuctionDetail] = useState(null)
   useEffect(() => {
     getAuction(auctionId).then(
-      ({data}) => {
+      (data) => {
         // data.expired_date.setHours(data.expired_date.getHours() + 8)
         console.log("data: ", data)
         setAuctionDetail(data)
@@ -72,17 +68,16 @@ export default function Auction() {
       console.log(err)
     })
   }, [auctionId])
-  console.log("Num: ", numOfParticipants)
-  console.log("roundstate: ", roundState)
+  // console.log("Num: ", numOfParticipants)
+  // console.log("roundstate: ", roundState)
   return (
     <div>
-      {socket && auctionDetail ? (
+      {auctionDetail ? (
         <div>
           {/* {price > 0 && <div>Your price {binPrice}</div>}
           <div>Current price: {currentBinPrice}</div> */}
           <div>
             <Commitment
-              socket={socket}
               id={id}
               numOfParticipants={numOfParticipants}
               roundState={roundState}
@@ -101,9 +96,8 @@ export default function Auction() {
               setParticipantsIds={setParticipantsIds}
             />
           </div>
-          <div>
+          {/* <div>
             <RoundOne
-              socket={socket}
               id={id}
               pubKeys={pubKeys}
               setPubKeys={setPubKeys}
@@ -121,7 +115,6 @@ export default function Auction() {
           </div>
           <div>
             <RoundTwo
-              socket={socket}
               id={id}
               pubKeys={pubKeys}
               roundState={roundState}
@@ -147,7 +140,6 @@ export default function Auction() {
           </div>
           <div>
             <Final
-              socket={socket}
               id={id}
               roundState={roundState}
               binPrice={binPrice}
@@ -158,7 +150,7 @@ export default function Auction() {
               groups={groups}
               participantsIds={participantsIds}
             />
-          </div>
+          </div> */}
         </div>
       ) : (
         <div>not connected</div>

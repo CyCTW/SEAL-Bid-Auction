@@ -30,7 +30,6 @@ const execRoundOne = ({ iter, id, groups }) => {
 };
 
 export default function RoundOne({
-  socket,
   id,
   pubKeys,
   setPubKeys,
