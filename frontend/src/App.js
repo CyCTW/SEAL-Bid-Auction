@@ -20,7 +20,7 @@ function App() {
       setAccount(accounts[0])
 
       getAuctions().then(
-        ({data}) => {
+        (data) => {
           for(let i=0; i<data.length; i++) {
             let d = data[i]
             const expired_date = new Date(d.expired_date)
