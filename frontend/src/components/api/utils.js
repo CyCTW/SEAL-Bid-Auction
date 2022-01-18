@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const hostname = "http://localhost:3001";
+const hostname = "http://localhost:3002";
 const path = "api/auctions";
 
 export const getAuctions = async () => {
@@ -23,3 +23,9 @@ export const addAuction = async (data) => {
   const res = await axios.post(`${hostname}/${path}`, data);
   return res;
 };
+
+export const deleteAuction = async (id) => {
+  console.log("delete", id)
+  const res = await axios.delete(`${hostname}/${path}/${id}`);
+  return res
+}

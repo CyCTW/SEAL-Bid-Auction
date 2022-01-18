@@ -1,10 +1,10 @@
 import React from "react";
 import { Button, Header, Image, Modal, Form } from "semantic-ui-react";
 import DateTimePicker from "react-datetime-picker";
-import { addAuction } from "../utils";
+import { addAuction } from "./api/utils";
 import { useState, useEffect } from "react";
 
-function NewAuctionModal() {
+function NewAuctionModal({fetch, setFetch}) {
   const [open, setOpen] = useState(false);
   const [image, setImage] = useState(null);
   const [name, setName] = useState("");
@@ -19,6 +19,7 @@ function NewAuctionModal() {
     ).catch(err => {
         console.log(err)
     })
+    setFetch((fetch) => !fetch)
     setOpen(false)
   };
   const handleName = (e) => {

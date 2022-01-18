@@ -11,9 +11,9 @@ import {
   generateStageTwoNIZKProof,
   verifyStageTwoNZIKProof,
 } from "../zk-proof/stageTwoProof";
-import { bigIntToString } from "./utils";
+import { bigIntToString, stringToBigInt } from "./utils";
 import { useState, useEffect } from "react";
-import AuctionBoard from "../AuctionBoard";
+import AuctionBoard from "../boards/AuctionBoard";
 
 const execRoundTwo = ({
   iter,
@@ -74,9 +74,17 @@ const execRoundTwo = ({
     // Optional
     verifyStageTwoNZIKProof(B_proof, groups, B_publics);
     B = B.toString();
-    bigIntToString(B_publics);
-    bigIntToString(B_proof);
-    let roundTwoProof = { B, B_publics, B_proof, iter, id };
+    // bigIntToString(B_publics);
+    // bigIntToString(B_proof);
+    let roundTwoProof = {
+      B,
+      B_publics: bigIntToString(B_publics),
+      B_proof: bigIntToString(B_proof),
+      groups: bigIntToString(groups),
+      iter,
+      stage: 2,
+      id,
+    };
     return [roundTwoProof, d_bit];
   } else {
     d_bit = bit;
@@ -94,10 +102,18 @@ const execRoundTwo = ({
     verifyStageOneNZIKProof(B_proof, groups, B_publics);
 
     B = B.toString();
-    bigIntToString(B_publics);
-    bigIntToString(B_proof);
+    // bigIntToString(B_publics);
+    // bigIntToString(B_proof);
 
-    let roundTwoProof = { B, B_publics, B_proof, iter, id };
+    let roundTwoProof = {
+      B,
+      B_publics: bigIntToString(B_publics),
+      B_proof: bigIntToString(B_proof),
+      groups: bigIntToString(groups),
+      iter,
+      stage: 1,
+      id,
+    };
     return [roundTwoProof, d_bit];
   }
 };
@@ -143,15 +159,36 @@ export default function RoundTwo({
   useEffect(() => {
     socket.on("round2", (message) => {
       const roundTwoProof = JSON.parse(message);
-      setRoundTwoProofs((prevRoundTwoProofs) => {
-        const newProofs = [...prevRoundTwoProofs, roundTwoProof];
+      // Stage 1 or 2
+      let verify_res = false;
+      if (roundTwoProof.stage === 1) {
+        verify_res = verifyStageOneNZIKProof(
+          stringToBigInt(roundTwoProof.B_proof),
+          stringToBigInt(roundTwoProof.groups),
+          stringToBigInt(roundTwoProof.B_publics)
+        );
+      } else if (roundTwoProof.stage === 2) {
+        verify_res = verifyStageTwoNZIKProof(
+          stringToBigInt(roundTwoProof.B_proof),
+          stringToBigInt(roundTwoProof.groups),
+          stringToBigInt(roundTwoProof.B_publics)
+        );
+      }
+      
+      if (verify_res) {
+        setRoundTwoProofs((prevRoundTwoProofs) => {
+          const newProofs = [...prevRoundTwoProofs, roundTwoProof];
 
-        return newProofs;
-      });
+          return newProofs;
+        });
+      }
     });
   }, [socket]);
   useEffect(() => {
-    if (roundTwoProofs.length !== 0 && roundTwoProofs.length === iter * numOfParticipants) {
+    if (
+      roundTwoProofs.length !== 0 &&
+      roundTwoProofs.length === iter * numOfParticipants
+    ) {
       // Finish one iteration
       const bit = computeCurrentBitPrice({ roundTwoProofs, iter, groups });
 
@@ -186,7 +223,7 @@ export default function RoundTwo({
       privateKeys,
       decidingBits,
       setDecidingBits,
-      groups
+      groups,
     });
     socket.emit("round2", JSON.stringify(roundTwoProof));
     setDecidingBits([...decidingBits, { iter, d_bit }]);
@@ -207,8 +244,10 @@ export default function RoundTwo({
             id={id}
             round={2}
           />
-        </div>) : <div></div>
-      }
+        </div>
+      ) : (
+        <div></div>
+      )}
     </div>
   );
 }

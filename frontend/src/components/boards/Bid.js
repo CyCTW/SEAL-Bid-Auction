@@ -19,14 +19,14 @@ const Bid = ({binPrice, currentBinPrice}) => (
             <button className="ui teal button">
                 Current Bid
             </button>
-            <input type="text" value={currentBinPrice ? `${currentBinPrice}` : ""} />
+            <input type="text" disabled value={currentBinPrice ? `${currentBinPrice}` : ""} />
         </div>
         <div></div>
         <div className="ui left action input">
             <button className="ui teal button">
                 Your    Bid
             </button>
-            <input type="text" value={`${binPrice}`} />
+            <input type="text" disabled value={`${binPrice}`} />
         </div>
     </div>
 )

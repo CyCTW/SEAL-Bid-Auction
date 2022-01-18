@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { io, webSocket } from "socket.io-client";
 
-import Commitment from "../component/stages/commitment";
-import { init_schnorr_group } from "../component/zk-proof/utils";
-import RoundOne from "../component/stages/roundOne";
-import RoundTwo from "../component/stages/roundTwo";
-import Final from "../component/stages/final";
-import { getAuction } from "../utils";
+import Commitment from "../components/protocols/commitment";
+import { init_schnorr_group } from "../components/zk-proof/utils";
+import RoundOne from "../components/protocols/roundOne";
+import RoundTwo from "../components/protocols/roundTwo";
+import Final from "../components/protocols/final";
+import { getAuction } from "../components/api/utils";
 import { useParams } from "react-router-dom/cjs/react-router-dom.min";
 
 export default function Auction() {
@@ -47,9 +47,7 @@ export default function Auction() {
     */
 
   useEffect(() => {
-    //連線成功在 console 中打印訊息
-    setSocket(io("http://localhost:3001"));
-
+    setSocket(io("http://localhost:3002"));
     console.log("success connect!");
     setId(Math.floor(Math.random() * 100));
   }, [setSocket]);

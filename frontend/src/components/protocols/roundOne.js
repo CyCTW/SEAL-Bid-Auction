@@ -3,9 +3,9 @@ import {
   verifyPublicKeyNIZKProof,
 } from "../zk-proof/publicKeyProof";
 import { init_schnorr_group } from "../zk-proof/utils";
-import { bigIntToString } from "./utils";
+import { bigIntToString, stringToBigInt } from "./utils";
 import { useState, useEffect } from "react";
-import AuctionBoard from "../AuctionBoard";
+import AuctionBoard from "../boards/AuctionBoard";
 
 const execRoundOne = ({ iter, id, groups }) => {
   /*
@@ -18,15 +18,21 @@ const execRoundOne = ({ iter, id, groups }) => {
     */
   const [pubkey_proof, pubkey_publics, private_keys] =
     generatePublicKeyNIZKProof(BigInt(id), groups);
-  // const groups = await init_schnorr_group();
 
   // optional
   verifyPublicKeyNIZKProof(pubkey_proof, groups, pubkey_publics);
-  bigIntToString(pubkey_proof);
-  bigIntToString(pubkey_publics);
   let private_keys_ = { ...private_keys, iter };
 
-  return [{ pubkey_publics, pubkey_proof, iter, id }, private_keys_];
+  return [
+    {
+      pubkey_publics: bigIntToString(pubkey_publics),
+      pubkey_proof: bigIntToString(pubkey_proof),
+      groups: bigIntToString(groups),
+      iter,
+      id,
+    },
+    private_keys_,
+  ];
 };
 
 export default function RoundOne({
@@ -43,7 +49,7 @@ export default function RoundOne({
   groups,
   binPrice,
   currentBinPrice,
-  participantsIds
+  participantsIds,
 }) {
   // const [iter, setIter] = useState(1)
   const [isSubmittedRoundOne, setIsSubmittedRoundOne] = useState(false);
@@ -52,12 +58,21 @@ export default function RoundOne({
     socket.on("round1", (message) => {
       const pubKey = JSON.parse(message);
 
-      setPubKeys((prevPubkeys) => {
-        const newPubkeys = [...prevPubkeys, pubKey];
-        //   newCommitment.push(commitment)
+      const verify_res = verifyPublicKeyNIZKProof(
+        stringToBigInt(pubKey.pubkey_proof),
+        stringToBigInt(pubKey.groups),
+        stringToBigInt(pubKey.pubkey_publics)
+      );
+      if (verify_res) {
+        setPubKeys((prevPubkeys) => {
+          const newPubkeys = [...prevPubkeys, pubKey];
+          //   newCommitment.push(commitment)
 
-        return newPubkeys;
-      });
+          return newPubkeys;
+        });
+      } else {
+        console.log("Wrong publickey proof...");
+      }
     });
   }, [socket]);
 

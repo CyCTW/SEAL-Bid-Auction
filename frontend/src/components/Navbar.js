@@ -10,7 +10,7 @@ const NavBar = () => {
     return (  
         <div className="ui stackable menu">
             <div className="item">
-                <input type="image" src={require("./img/Logo.png")} style={button_style} onClick={() => window.location = '/'}/>
+                <input type="image" src={require("../img/Logo.png")} style={button_style} onClick={() => window.location = '/'}/>
             </div>
         </div>
     )

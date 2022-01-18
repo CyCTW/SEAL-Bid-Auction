@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import AuctionBoard from "../AuctionBoard";
+import AuctionBoard from "../boards/AuctionBoard";
 import {
   checkDiscreteLog,
   findPrivateKeys,
@@ -65,12 +65,6 @@ export default function Final({
             round={3}
             isWinner={isWinner}
           />
-          <h1>Auction end...</h1>
-          {isWinner && isWinner ? (
-            <h2> You are the winner!</h2>
-          ) : (
-            <h2>You loses...</h2>
-          )}
         </div>
       ) : (
         <div></div>
