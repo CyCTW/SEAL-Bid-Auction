@@ -1,4 +1,3 @@
-import { generatePublicKeyNIZKProof } from "./publicKeyProof.js";
 import {
   egcd,
   pow,
@@ -89,25 +88,21 @@ const verifyCommitmentNIZKProof = (proof, groups, publics) => {
   return verify_1() && verify_2() && verify_3() && verify_4();
 };
 
-const init = ({statement, id, groups}) => {
+const init = (statement, groups) => {
   // const groups = await init_schnorr_group();
   const { g, q, p } = groups;
-  console.log("Groups: ", groups)
-  const [publickey_proof, publickeys, secretkeys] = generatePublicKeyNIZKProof(id, groups)
-  const [a, b] = [secretkeys.x, secretkeys.r]
-  const [A, B] = [publickeys.X, publickeys.R]
-  // const a = randrange(1n, q);
-  // const b = randrange(1n, q);
+  const a = randrange(1n, q);
+  const b = randrange(1n, q);
 
-  // const A = pow(g, a, p);
-  // const B = pow(g, b, p);
+  const A = pow(g, a, p);
+  const B = pow(g, b, p);
   const L = pow(g, a * b + statement, p);
 
   // const groups = new group_parameters(g, q, p);
   const secrets = new private_keys(a, b);
   const publics = new public_keys(A, B, L);
 
-  return [secrets, publics, publickey_proof];
+  return [secrets, publics];
 };
 
 const generateCommitmentNIZKProof = (statement, id, groups) => {
@@ -123,7 +118,7 @@ const generateCommitmentNIZKProof = (statement, id, groups) => {
           groups: groups parameters
           publics: public parameters
     */
-  const [secrets, publics, publickey_proof] = init({statement, id, groups});
+  const [secrets, publics] = init(statement, groups);
   const proof = new commitmentNIZKProof();
   const { g, q, p } = groups;
   const { a, b } = secrets;
@@ -178,7 +173,7 @@ const generateCommitmentNIZKProof = (statement, id, groups) => {
     proof.response_1 = r1;
     proof.response_2 = r2 - a * ch2;
   }
-  return [proof, publickey_proof, publics, secrets];
+  return [proof, publics, secrets];
 };
 
 export { generateCommitmentNIZKProof, verifyCommitmentNIZKProof };

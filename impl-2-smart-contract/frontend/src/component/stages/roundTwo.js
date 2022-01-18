@@ -11,14 +11,10 @@ import {
   generateStageTwoNIZKProof,
   verifyStageTwoNZIKProof,
 } from "../zk-proof/stageTwoProof";
-import { bigIntToString, stringToBigInt } from "./utils";
+import { bigIntToString } from "./utils";
 import { useState, useEffect } from "react";
-<<<<<<< HEAD:impl-1-websocket/frontend/src/components/protocols/roundTwo.js
-import AuctionBoard from "../boards/AuctionBoard";
-=======
 import AuctionBoard from "../AuctionBoard";
 import { sendRound2, getAuctionContract } from "../../utils";
->>>>>>> smart-contract:impl-2-smart-contract/frontend/src/component/stages/roundTwo.js
 
 const execRoundTwo = ({
   iter,
@@ -79,17 +75,9 @@ const execRoundTwo = ({
     // Optional
     verifyStageTwoNZIKProof(B_proof, groups, B_publics);
     B = B.toString();
-    // bigIntToString(B_publics);
-    // bigIntToString(B_proof);
-    let roundTwoProof = {
-      B,
-      B_publics: bigIntToString(B_publics),
-      B_proof: bigIntToString(B_proof),
-      groups: bigIntToString(groups),
-      iter,
-      stage: 2,
-      id,
-    };
+    bigIntToString(B_publics);
+    bigIntToString(B_proof);
+    let roundTwoProof = { B, B_publics, B_proof, iter, id };
     return [roundTwoProof, d_bit];
   } else {
     d_bit = bit;
@@ -107,18 +95,10 @@ const execRoundTwo = ({
     verifyStageOneNZIKProof(B_proof, groups, B_publics);
 
     B = B.toString();
-    // bigIntToString(B_publics);
-    // bigIntToString(B_proof);
+    bigIntToString(B_publics);
+    bigIntToString(B_proof);
 
-    let roundTwoProof = {
-      B,
-      B_publics: bigIntToString(B_publics),
-      B_proof: bigIntToString(B_proof),
-      groups: bigIntToString(groups),
-      iter,
-      stage: 1,
-      id,
-    };
+    let roundTwoProof = { B, B_publics, B_proof, iter, id };
     return [roundTwoProof, d_bit];
   }
 };
@@ -162,46 +142,18 @@ export default function RoundTwo({
   const [isSubmittedRoundTwo, setIsSubmittedRoundTwo] = useState(false);
 
   useEffect(() => {
-<<<<<<< HEAD:impl-1-websocket/frontend/src/components/protocols/roundTwo.js
-    socket.on("round2", (message) => {
-      const roundTwoProof = JSON.parse(message);
-      // Stage 1 or 2
-      let verify_res = false;
-      if (roundTwoProof.stage === 1) {
-        verify_res = verifyStageOneNZIKProof(
-          stringToBigInt(roundTwoProof.B_proof),
-          stringToBigInt(roundTwoProof.groups),
-          stringToBigInt(roundTwoProof.B_publics)
-        );
-      } else if (roundTwoProof.stage === 2) {
-        verify_res = verifyStageTwoNZIKProof(
-          stringToBigInt(roundTwoProof.B_proof),
-          stringToBigInt(roundTwoProof.groups),
-          stringToBigInt(roundTwoProof.B_publics)
-        );
-      }
-      
-      if (verify_res) {
-        setRoundTwoProofs((prevRoundTwoProofs) => {
-          const newProofs = [...prevRoundTwoProofs, roundTwoProof];
-=======
     let auctionContract = getAuctionContract(auctionId);
     auctionContract.events.Round2Event((err, event) => {
       const roundTwoProof = JSON.parse(event.returnValues[1]);
       setRoundTwoProofs((prevRoundTwoProofs) => {
         const newProofs = [...prevRoundTwoProofs, roundTwoProof];
->>>>>>> smart-contract:impl-2-smart-contract/frontend/src/component/stages/roundTwo.js
 
-          return newProofs;
-        });
-      }
+        return newProofs;
+      });
     });
   }, []);
   useEffect(() => {
-    if (
-      roundTwoProofs.length !== 0 &&
-      roundTwoProofs.length === iter * numOfParticipants
-    ) {
+    if (roundTwoProofs.length !== 0 && roundTwoProofs.length === iter * numOfParticipants) {
       // Finish one iteration
       const bit = computeCurrentBitPrice({ roundTwoProofs, iter, groups });
 
@@ -236,7 +188,7 @@ export default function RoundTwo({
       privateKeys,
       decidingBits,
       setDecidingBits,
-      groups,
+      groups
     });
     sendRound2(auctionId, roundTwoProof);
     // socket.emit("round2", JSON.stringify(roundTwoProof));
@@ -258,10 +210,8 @@ export default function RoundTwo({
             id={id}
             round={2}
           />
-        </div>
-      ) : (
-        <div></div>
-      )}
+        </div>) : <div></div>
+      }
     </div>
   );
 }

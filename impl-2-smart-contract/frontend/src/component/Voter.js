@@ -5,7 +5,9 @@ const Voter = ({ isSubmitted, isWinner }) => (
   <Grid.Column>
     <button
       className={
-         isSubmitted
+        isWinner
+          ? "circular ui yellow icon button"
+          : isSubmitted
           ? "circular ui green icon button"
           : "circular ui gray icon button"
       }

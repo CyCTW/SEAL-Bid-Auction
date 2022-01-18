@@ -6,17 +6,10 @@ import {
 import { init_schnorr_group } from "../zk-proof/utils";
 
 import { useState, useEffect } from "react";
-<<<<<<< HEAD:impl-1-websocket/frontend/src/components/protocols/commitment.js
-import { bigIntToString, stringToBigInt } from "./utils";
-import ObjectPage from "../products/ObjectPage";
-import AuctionBoard from "../boards/AuctionBoard";
-import { verifyPublicKeyNIZKProof } from "../zk-proof/publicKeyProof";
-=======
 import { bigIntToString } from "./utils";
 import { joinAuction, getAuctionContract } from "../../utils";
 import ObjectPage from "../ObjectPage";
 import AuctionBoard from "../AuctionBoard";
->>>>>>> smart-contract:impl-2-smart-contract/frontend/src/component/stages/commitment.js
 
 const DectoBinary = ({ price, totalBits }) => {
   let bin_val = (price >>> 0).toString(2);
@@ -44,18 +37,22 @@ const commitPrice = ({ id, bin_price, groups }) => {
 
   for (const bit of bin_price) {
     let statement = parseInt(bit);
-    let [epsilon_proof, publickey_proof, epsilon_publics, commitment_secret] =
+    // TODO: Put groups to global variables
+    let [epsilon_proof, epsilon_publics, commitment_secret] =
       generateCommitmentNIZKProof(BigInt(statement), BigInt(id), groups);
+    // let [pubkey_proof, pubkey_publics, prikey_secrets] = await generatePublicKeyNIZKProof(BigInt(id))
+    // const groups = await init_schnorr_group();
 
     // optional
     verifyCommitmentNIZKProof(epsilon_proof, groups, epsilon_publics);
-    console.log("Complete: ", bit_idx);
+
+    bigIntToString(epsilon_proof);
+    bigIntToString(epsilon_publics);
+
     proofs.push({
       bit_idx,
-      epsilon_proof: bigIntToString(epsilon_proof),
-      publickey_proof: bigIntToString(publickey_proof),
-      epsilon_publics: bigIntToString(epsilon_publics),
-      groups: bigIntToString(groups),
+      epsilon_proof,
+      epsilon_publics,
     });
     commitment_secrets.push({ bit_idx, ...commitment_secret });
     bit_idx += 1;
@@ -86,61 +83,6 @@ export default function Commitment({
   const [commitments, setCommitments] = useState([]);
 
   useEffect(() => {
-<<<<<<< HEAD:impl-1-websocket/frontend/src/components/protocols/commitment.js
-    socket.on("commitment", (message) => {
-      const commitment = JSON.parse(message);
-      // Verification
-      let pass = true;
-      for (let commit of commitment.commitment) {
-        const verify_commitment_res = verifyCommitmentNIZKProof(
-          stringToBigInt(commit.epsilon_proof),
-          stringToBigInt(commit.groups),
-          stringToBigInt(commit.epsilon_publics)
-        );
-        const verify_publickey_res = verifyPublicKeyNIZKProof(stringToBigInt(commit.publickey_proof), stringToBigInt(commit.groups), {
-          X: BigInt(commit.epsilon_publics.A),
-          R: BigInt(commit.epsilon_publics.B),
-        });
-        if (verify_commitment_res && verify_publickey_res) {
-          console.log("Verify succeed!");        
-        } else {
-          pass = false;
-          console.log("Wrong proof.")
-          break
-        }
-
-      }
-      if (pass) {
-        setCommitments((prevCommitment) => {
-          const newCommitment = [...prevCommitment, commitment];
-          //   newCommitment.push(commitment)
-          return newCommitment;
-        });
-        setParticipantsIds((prevIds) => {
-          const newIds = [...prevIds, commitment.id];
-          return newIds;
-        });
-        console.log("commitment length 1: ", commitments.length);
-
-        setNumOfParticipants((prev) => {
-          return prev + 1;
-        });
-        console.log("NumofParcipants 1: ", numOfParticipants);
-      }
-    });
-  }, [socket]);
-  console.log("NumofParcipants 2: ", numOfParticipants);
-  console.log("commitment length 2: ", commitments.length);
-
-  // useEffect(() => {
-  //   if (commitments.length === numOfParticipants) {
-  //     // Finish all commitments
-  //     setIsSubmittedCommitment(false);
-  //     setRoundState(1);
-  //   }
-  // }, [commitments]);
-  console.log("detail", auctionDetail);
-=======
     let auctionContract = getAuctionContract(auctionDetail['id']);
     auctionContract.events.JoinAuctionEvent((err, event) => {
       const commitment = JSON.parse(event.returnValues[1]);
@@ -173,7 +115,6 @@ export default function Commitment({
     }
   }, [commitments]);
   // console.log("detail", auctionDetail);
->>>>>>> smart-contract:impl-2-smart-contract/frontend/src/component/stages/commitment.js
 
   const calculateTimeLeft = () => {
     // calculate difference
@@ -211,6 +152,7 @@ export default function Commitment({
       }, 1000);
       // console.log("timeleft: ", timeLeft);
       if (Object.keys(timeLeft).length === 0) {
+        console.log("????????????????")
         clearTimeout(timer);
         setRoundState(1);
       }
@@ -237,40 +179,39 @@ export default function Commitment({
 
   const viewCommitment = () => {
     setIsSubmittedCommitment(true);
-  };
+  }
 
   return (
     <div>
       {roundState === 0 ? (
-        !isSubmittedCommitment ? (
-          <div>
-            {auctionDetail && timeLeft && (
-              <div>
-                <ObjectPage
-                  sendCommitment={sendCommitment}
-                  viewCommitment={viewCommitment}
-                  setPrice={setPrice}
-                  isSubmittedCommitment={isSubmittedCommitment}
-                  timeLeft={timeLeft}
-                  auctionDetail={auctionDetail}
-                />
-              </div>
-            )}
-          </div>
-        ) : (
-          <AuctionBoard
-            binPrice={binPrice}
-            // currentBinPrice={null}
-            // sendProofs={sendPubkeys}
-            isSubmitted={isSubmittedCommitment}
-            participantsIds={participantsIds}
-            proofs={commitments}
-            // iter={iter}
-            id={id}
-            round={0}
-            timeLeft={timeLeft}
-          />
-        )
+        !isSubmittedCommitment ?
+        <div>
+          {auctionDetail && timeLeft && (
+            <div>
+              <ObjectPage
+                sendCommitment={sendCommitment}
+                viewCommitment={viewCommitment}
+                setPrice={setPrice}
+                isSubmittedCommitment={isSubmittedCommitment}
+                timeLeft={timeLeft}
+                auctionDetail={auctionDetail}
+              />
+            </div>
+          )}
+          
+        </div> : 
+        <AuctionBoard
+          binPrice={binPrice}
+          // currentBinPrice={null}
+          // sendProofs={sendPubkeys}
+          isSubmitted={isSubmittedCommitment}
+          participantsIds={participantsIds}
+          proofs={commitments}
+          // iter={iter}
+          id={id}
+          round={0}
+          timeLeft={timeLeft}
+        />
       ) : (
         <div></div>
       )}
@@ -296,7 +237,7 @@ Commitment structure:
           response_1: BigInt,
           response_2: BigInt,
         },
-        epsilon_publics: {
+        epsilon_public: {
           A: BigInt,
           B: BigInt,
           L: BigInt
@@ -306,7 +247,7 @@ Commitment structure:
         bit_idx: int,
         epsilon,
         epsilon_proof,
-        epsilon_publics,
+        epsilon_public,
       },
     ]
   },

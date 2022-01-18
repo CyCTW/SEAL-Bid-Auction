@@ -5,13 +5,7 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 
 ReactDOM.render(
-<<<<<<< HEAD:impl-1-websocket/frontend/src/index.js
-  <>
-    <App />
-  </>,
-=======
   <App />,
->>>>>>> smart-contract:impl-2-smart-contract/frontend/src/index.js
   document.getElementById('root')
 );
 

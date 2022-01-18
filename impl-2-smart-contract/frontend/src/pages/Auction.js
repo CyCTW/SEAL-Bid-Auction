@@ -1,21 +1,12 @@
 import { useState, useEffect } from "react";
 import { io, webSocket } from "socket.io-client";
 
-<<<<<<< HEAD:impl-1-websocket/frontend/src/pages/Auction.js
-import Commitment from "../components/protocols/commitment";
-import { init_schnorr_group } from "../components/zk-proof/utils";
-import RoundOne from "../components/protocols/roundOne";
-import RoundTwo from "../components/protocols/roundTwo";
-import Final from "../components/protocols/final";
-import { getAuction } from "../components/api/utils";
-=======
 import Commitment from "../component/stages/commitment";
 import { init_schnorr_group } from "../component/zk-proof/utils";
 import RoundOne from "../component/stages/roundOne";
 import RoundTwo from "../component/stages/roundTwo";
 import Final from "../component/stages/final";
 import { getAuction, web3 } from "../utils";
->>>>>>> smart-contract:impl-2-smart-contract/frontend/src/pages/Auction.js
 import { useParams } from "react-router-dom/cjs/react-router-dom.min";
 
 export default function Auction() {
@@ -56,15 +47,8 @@ export default function Auction() {
     */
 
   useEffect(() => {
-<<<<<<< HEAD:impl-1-websocket/frontend/src/pages/Auction.js
-    setSocket(io("http://localhost:3002"));
-    console.log("success connect!");
-    setId(Math.floor(Math.random() * 100));
-  }, [setSocket]);
-=======
     setId(web3.eth.defaultAccount);
   }, [web3.eth.defaultAccount]);
->>>>>>> smart-contract:impl-2-smart-contract/frontend/src/pages/Auction.js
 
   useEffect(async () => {
     const groups = await init_schnorr_group()

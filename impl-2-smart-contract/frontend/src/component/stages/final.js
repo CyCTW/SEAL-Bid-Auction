@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import AuctionBoard from "../boards/AuctionBoard";
+import AuctionBoard from "../AuctionBoard";
 import {
   checkDiscreteLog,
   findPrivateKeys,
@@ -70,8 +70,6 @@ export default function Final({
             round={3}
             isWinner={isWinner}
           />
-<<<<<<< HEAD:impl-1-websocket/frontend/src/components/protocols/final.js
-=======
           <Button onClick={() => logAllEvent(auctionId)}>Log all</Button>
           <h1>Auction end...</h1>
           {isWinner && isWinner ? (
@@ -79,7 +77,6 @@ export default function Final({
           ) : (
             <h2>You loses...</h2>
           )}
->>>>>>> smart-contract:impl-2-smart-contract/frontend/src/component/stages/final.js
         </div>
       ) : (
         <div></div>

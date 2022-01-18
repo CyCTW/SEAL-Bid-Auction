@@ -5,8 +5,8 @@ import { Grid, Image, Input, Segment } from 'semantic-ui-react'
 
 const mainStyle = {
   display: 'grid',
-  gridTemplateColumns: '85% 15%',
-  height: '40vh',
+  gridTemplateColumns: '10% 40% 35% 15%',
+  height: '75vh',
   margin: '2vh',
 }
 
@@ -29,15 +29,15 @@ const bidStyle = {
 const ObjectPage = ({sendCommitment, viewCommitment, setPrice, isSubmittedCommitment, timeLeft, auctionDetail}) => (
   <div className="container">
     <div className="row" style={mainStyle}>
-      {/* <div style={leftStyle}>
+      <div style={leftStyle}>
         <input type="image" style={button_style} src={require("./img/grabber_1.jpg")} onClick={() => document.getElementById("big_image").src = require("./img/grabber_1.jpg")}/>
         <input type="image" style={button_style} src={require("./img/grabber_2.jpg")} onClick={() => document.getElementById("big_image").src = require("./img/grabber_1.jpg")}/>
         <input type="image" style={button_style} src={require("./img/grabber_3.jpg")} onClick={() => document.getElementById("big_image").src = require("./img/grabber_1.jpg")}/>
         <input type="image" style={button_style} src={require("./img/grabber_4.jpg")} onClick={() => document.getElementById("big_image").src = require("./img/grabber_1.jpg")}/>
-      </div> */}
-      {/* <div> */}
-        {/* <Image id="big_image" src={require("./img/grabber_1.jpg")} rounded /> */}
-      {/* </div> */}
+      </div>
+      <div>
+        <Image id="big_image" src={require("./img/grabber_1.jpg")} rounded />
+      </div>
       <div>
         <h1>{auctionDetail.name}</h1>
         <div className="ui secondary pointing menu">
