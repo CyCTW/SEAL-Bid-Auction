@@ -1,0 +1,29 @@
+version: '3.7'
+
+services:
+  frontend:
+    container_name: frontend
+    depends_on:
+      - testchain
+    build:
+      context: ./
+    volumes:
+      - './contract:/app/contract'
+      - './frontend:/app/client'
+    command: >
+      sh -c "sleep 15 &&
+             cd contract &&
+             truffle migrate &&
+             mkdir ../client/src/contracts &&
+             cp -R build/contracts/* ../client/src/contracts/ &&
+             cd ../client &&
+             npm start"
+    ports:
+      - 3000:3000
+  
+  testchain:
+    container_name: testchain
+    image: trufflesuite/ganache-cli:latest
+    command: --gasLimit 67219750
+    ports:
+      - 8545:8545
