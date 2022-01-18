@@ -7,7 +7,7 @@ import auctionContractBuild from "./contracts/Auction.json"
 // const hostname = "http://localhost:3001";
 // const path = "api/auctions";
 
-const mainContractAddress = "0x4e61758Dd564547f155A5aF3935A59E7fD939fdb";
+const mainContractAddress = "0xe29943E60e6E07767413040CaBCa3505AE7758Cc";
 const mainContractABI = mainContractBuild['abi'];
 const auctionContractABI = auctionContractBuild['abi'];
 
@@ -113,3 +113,18 @@ export const sendWinnerClaim = async (auctionAddr, x) => {
   console.log(r);
 }
 
+export const logAllEvent = async (auctionAddr) => {
+  const auctionContract = getAuctionContract(auctionAddr);
+  auctionContract.events.JoinAuctionEvent({
+      fromBlock: 0
+  }, function(error, event){ console.log("JoinAuctionEvent", event); })
+  auctionContract.events.Round1Event({
+      fromBlock: 0
+  }, function(error, event){ console.log("Round1Event", event); })
+  auctionContract.events.Round2Event({
+      fromBlock: 0
+  }, function(error, event){ console.log("Round2Event", event); })
+  auctionContract.events.claimWinnerEvent({
+      fromBlock: 0
+  }, function(error, event){ console.log("claimWinnerEvent", event); })
+}

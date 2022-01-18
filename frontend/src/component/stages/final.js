@@ -5,7 +5,8 @@ import {
   findPrivateKeys,
   findPublicKeys,
 } from "../zk-proof/utils";
-import { sendWinnerClaim, getAuctionContract } from "../../utils";
+import { sendWinnerClaim, getAuctionContract, logAllEvent } from "../../utils";
+import { Button } from "semantic-ui-react";
 
 export default function Final({
   id,
@@ -69,6 +70,7 @@ export default function Final({
             round={3}
             isWinner={isWinner}
           />
+          <Button onClick={() => logAllEvent(auctionId)}>Log all</Button>
           <h1>Auction end...</h1>
           {isWinner && isWinner ? (
             <h2> You are the winner!</h2>

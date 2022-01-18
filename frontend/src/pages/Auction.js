@@ -38,7 +38,7 @@ export default function Auction() {
   const [decidingBits, setDecidingBits] = useState([]);
 
   // Total padding bits
-  const totalBits = 1;
+  const totalBits = 2;
 
   /* 
     privateKeys = {
