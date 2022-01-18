@@ -1,7 +1,7 @@
 import React from "react";
 import { Button, Header, Image, Modal, Form } from "semantic-ui-react";
 import DateTimePicker from "react-datetime-picker";
-import { addAuction } from "../utils";
+import { addAuction, getMainContract } from "../utils";
 import { useState, useEffect } from "react";
 
 function NewAuctionModal() {
@@ -11,9 +11,10 @@ function NewAuctionModal() {
   const [description, setDescription] = useState("");
   const [expiredDate, setExpiredDate] = useState();
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const auctionInfo = {...name, ...description, expired_date: expiredDate}
-    addAuction(auctionInfo).then((res) =>{
+    const mainContract = await getMainContract();
+    addAuction(mainContract, auctionInfo).then((res) =>{
         console.log(res)
     }
     ).catch(err => {

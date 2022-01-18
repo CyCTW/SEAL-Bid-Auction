@@ -5,7 +5,7 @@ import Home from "./component/Home";
 import ObjectPage from "./component/ObjectPage";
 import NavBar from "./component/Navbar";
 import { useState, useEffect } from "react";
-import { getAuctions, web3 } from "./utils";
+import { getMainContract, getAuctions, web3 } from "./utils";
 import Auction from './pages/Auction'
 
 function App() {
@@ -20,7 +20,8 @@ function App() {
       setAccount(accounts[0]);
 
       try {
-        let data = await getAuctions();
+        let mainContract = await getMainContract();
+        let data = await getAuctions(mainContract);
 
         // for (let i = 0; i < data.length; i++) {
         //   let d = data[i];
