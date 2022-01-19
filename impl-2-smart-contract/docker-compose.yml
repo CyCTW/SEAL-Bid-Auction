@@ -7,14 +7,11 @@ services:
       - testchain
     build:
       context: ./
-    volumes:
-      - './contract:/app/contract'
-      - './frontend:/app/client'
     command: >
       sh -c "sleep 15 &&
              cd contract &&
              truffle migrate &&
-             mkdir ../client/src/contracts &&
+             mkdir -p ../client/src/contracts &&
              cp -R build/contracts/* ../client/src/contracts/ &&
              cd ../client &&
              npm start"
