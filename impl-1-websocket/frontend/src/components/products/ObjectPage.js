@@ -1,5 +1,6 @@
 import React from "react";
 import { Grid, Image, Input, Segment } from 'semantic-ui-react'
+import totalBits from "../../env";
 
 
 
@@ -53,6 +54,8 @@ const ObjectPage = ({sendCommitment, viewCommitment, setPrice, isSubmittedCommit
         <p>{auctionDetail && `Remain: ${timeLeft.days} Days ${timeLeft.hours} Hours ${timeLeft.minutes} min ${timeLeft.seconds} sec`}</p>
       </div>
     </div>
+    <div>Enter your bid price from 1 to {2**totalBits-1}</div>
+
     <div className="row" style={bidStyle}>
       <div className="ui action input">
         <input type="text" placeholder='Please enter your bid price.' onChange={(e) => setPrice(e.target.value)}/>

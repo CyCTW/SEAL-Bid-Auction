@@ -6,10 +6,11 @@ WORKDIR /app
 ENV PATH /app/node_modules/.bin:$PATH
 
 # install app dependencies
-COPY package*.json ./
-RUN npm install --silent
+COPY package*.json ./ 
+RUN npm install -g express 
+RUN npm install  
 
-COPY . ./
+COPY . ./ 
 EXPOSE 3002
 
 CMD ["node", "server.js"]

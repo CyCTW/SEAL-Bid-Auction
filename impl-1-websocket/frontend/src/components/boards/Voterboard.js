@@ -12,9 +12,6 @@ const findProofs = (proofs, iter, id) => {
 }
 
 const VoterBoard = ({participantsIds, proofs, iter, id, isWinner}) => {
-    // console.log("Parti id: ", participantsIds)
-    // console.log("Proofs: ", proofs)
-    // console.log("Iter: ", iter)
 
     return (
     <div className="ui segment">

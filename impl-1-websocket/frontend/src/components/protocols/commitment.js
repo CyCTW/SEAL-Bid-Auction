@@ -136,10 +136,7 @@ export default function Commitment({
 
   const calculateTimeLeft = () => {
     // calculate difference
-    // console.log("expire: ", auctionDetail);
-    // console.log("expire: ", typeof auctionDetail.expired_date);
     const difference = new Date(auctionDetail.expired_date) - new Date();
-    // const difference = 5000
     let timeLeft = {};
     if (difference > 0) {
       timeLeft = {
@@ -149,9 +146,6 @@ export default function Commitment({
         seconds: Math.floor((difference / 1000) % 60),
       };
     }
-    // if (timeLeft.seconds < 10) {
-    //   return {};
-    // }
     return timeLeft;
   };
 
@@ -161,14 +155,11 @@ export default function Commitment({
     minutes: 0,
     seconds: 0,
   });
-  // console.log(timeLeft);
-  // console.log(timeLeft.days);
   useEffect(() => {
     if (auctionDetail) {
       const timer = setTimeout(() => {
         setTimeLeft(calculateTimeLeft());
       }, 1000);
-      // console.log("timeleft: ", timeLeft);
       if (Object.keys(timeLeft).length === 0) {
         clearTimeout(timer);
         setRoundState(1);

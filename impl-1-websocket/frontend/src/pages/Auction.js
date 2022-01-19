@@ -8,7 +8,7 @@ import RoundTwo from "../components/protocols/roundTwo";
 import Final from "../components/protocols/final";
 import { getAuction } from "../components/api/utils";
 import { useParams } from "react-router-dom/cjs/react-router-dom.min";
-
+import totalBits from '../env'
 export default function Auction() {
   let { auctionId } = useParams();
 
@@ -38,8 +38,8 @@ export default function Auction() {
   const [decidingBits, setDecidingBits] = useState([]);
 
   // Total padding bits
-  const totalBits = 4;
-
+  // const totalBits = process.env.REACT_APP_TOTAL_BIT_LENTGH;
+  console.log("Total bits: ", totalBits)
   /* 
     privateKeys = {
       x, r, a, b
