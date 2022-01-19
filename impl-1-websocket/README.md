@@ -19,5 +19,5 @@ Then, click the auction you created and prepared your bid price.
 > *Note: Every bidder must submit their bid price only after all the other bidders are in the same auction page.*
 
 ## How to change maximum available bid price?
-Go to `src/eng.js` and change `totalBits` variables.
+Go to `src/env.js` and change `totalBits` variables.
 
