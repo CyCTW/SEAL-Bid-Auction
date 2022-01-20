@@ -2,7 +2,9 @@
 
 ## How to run?
 
-`docker-compose up --build`
+```
+docker-compose up --build
+```
 
 This command will run a test blockchain using ganache and a front-end server. For demo purpose, front-end container will automatically deploy contract to the blockchain.
 

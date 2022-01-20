@@ -10,6 +10,26 @@ This command will construct frontend and backend server.
 - Frontend default adress: http://localhost:3000
 - Backend default adress: http://localhost:3002
 
+
+If you want to run without docker, you have to first install `npm` package and `nodeJS`. 
+### Frontend
+Run command:
+```
+cd frontend && npm install
+```
+After that
+```
+npm start
+```
+### Backend
+Run command:
+```
+cd backend && npm install
+```
+After that
+```
+node server.js
+```
 ## How to operate?
 Just open browser and go to http://localhost:3000.
 
